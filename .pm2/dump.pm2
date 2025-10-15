@@ -1,0 +1,219 @@
+[
+  {
+    "kill_retry_time": 100,
+    "windowsHide": true,
+    "username": "Delvis",
+    "treekill": true,
+    "automation": true,
+    "pmx": true,
+    "instance_var": "NODE_APP_INSTANCE",
+    "watch": [
+      "false"
+    ],
+    "autorestart": true,
+    "autostart": true,
+    "vizion": true,
+    "merge_logs": true,
+    "env": {
+      "ALLUSERSPROFILE": "C:\\ProgramData",
+      "APPDATA": "C:\\Users\\Delvis\\AppData\\Roaming",
+      "asl.log": "Destination=file",
+      "CommonProgramFiles": "C:\\Program Files\\Common Files",
+      "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+      "CommonProgramW6432": "C:\\Program Files\\Common Files",
+      "COMPUTERNAME": "DESKTOP-C9VPC4C",
+      "ComSpec": "C:\\Windows\\system32\\cmd.exe",
+      "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+      "HOMEDRIVE": "C:",
+      "HOMEPATH": "\\Users\\Delvis",
+      "LOCALAPPDATA": "C:\\Users\\Delvis\\AppData\\Local",
+      "LOGONSERVER": "\\\\DESKTOP-C9VPC4C",
+      "NUMBER_OF_PROCESSORS": "4",
+      "OneDrive": "C:\\Users\\Delvis\\OneDrive",
+      "OS": "Windows_NT",
+      "Path": "C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\dotnet\\;C:\\Users\\Delvis\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Delvis\\AppData\\Roaming\\npm;C:\\Users\\Delvis\\.dotnet\\tools;C:\\Users\\Delvis\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+      "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC",
+      "PM2_HOME": "E:\\mi super app trading bot\\.pm2",
+      "PM2_USAGE": "CLI",
+      "PROCESSOR_ARCHITECTURE": "AMD64",
+      "PROCESSOR_IDENTIFIER": "Intel64 Family 6 Model 58 Stepping 9, GenuineIntel",
+      "PROCESSOR_LEVEL": "6",
+      "PROCESSOR_REVISION": "3a09",
+      "ProgramData": "C:\\ProgramData",
+      "ProgramFiles": "C:\\Program Files",
+      "ProgramFiles(x86)": "C:\\Program Files (x86)",
+      "ProgramW6432": "C:\\Program Files",
+      "PROMPT": "$P$G",
+      "PSModulePath": "C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules",
+      "PUBLIC": "C:\\Users\\Public",
+      "SystemDrive": "C:",
+      "SystemRoot": "C:\\Windows",
+      "TEMP": "C:\\Users\\Delvis\\AppData\\Local\\Temp",
+      "TMP": "C:\\Users\\Delvis\\AppData\\Local\\Temp",
+      "USERDOMAIN": "DESKTOP-C9VPC4C",
+      "USERDOMAIN_ROAMINGPROFILE": "DESKTOP-C9VPC4C",
+      "USERNAME": "Delvis",
+      "USERPROFILE": "C:\\Users\\Delvis",
+      "windir": "C:\\Windows",
+      "trading-bot": {},
+      "unique_id": "fe0bccc3-6a58-457d-bd1c-f325a9359b84"
+    },
+    "namespace": "default",
+    "filter_env": [],
+    "name": "trading-bot",
+    "node_args": [],
+    "pm_exec_path": "E:\\mi super app trading bot\\index.js",
+    "pm_cwd": "E:\\mi super app trading bot",
+    "exec_interpreter": "node",
+    "exec_mode": "fork_mode",
+    "pm_out_log_path": "E:\\mi super app trading bot\\.pm2\\logs\\trading-bot-out.log",
+    "pm_err_log_path": "E:\\mi super app trading bot\\.pm2\\logs\\trading-bot-error.log",
+    "pm_pid_path": "E:\\mi super app trading bot\\.pm2\\pids\\trading-bot-0.pid",
+    "km_link": false,
+    "vizion_running": false,
+    "NODE_APP_INSTANCE": 0,
+    "ALLUSERSPROFILE": "C:\\ProgramData",
+    "APPDATA": "C:\\Users\\Delvis\\AppData\\Roaming",
+    "asl.log": "Destination=file",
+    "CommonProgramFiles": "C:\\Program Files\\Common Files",
+    "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+    "CommonProgramW6432": "C:\\Program Files\\Common Files",
+    "COMPUTERNAME": "DESKTOP-C9VPC4C",
+    "ComSpec": "C:\\Windows\\system32\\cmd.exe",
+    "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+    "HOMEDRIVE": "C:",
+    "HOMEPATH": "\\Users\\Delvis",
+    "LOCALAPPDATA": "C:\\Users\\Delvis\\AppData\\Local",
+    "LOGONSERVER": "\\\\DESKTOP-C9VPC4C",
+    "NUMBER_OF_PROCESSORS": "4",
+    "OneDrive": "C:\\Users\\Delvis\\OneDrive",
+    "OS": "Windows_NT",
+    "Path": "C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\nodejs\\;C:\\Program Files\\dotnet\\;C:\\Users\\Delvis\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\Delvis\\AppData\\Roaming\\npm;C:\\Users\\Delvis\\.dotnet\\tools;C:\\Users\\Delvis\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
+    "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC",
+    "PM2_HOME": "E:\\mi super app trading bot\\.pm2",
+    "PM2_USAGE": "CLI",
+    "PROCESSOR_ARCHITECTURE": "AMD64",
+    "PROCESSOR_IDENTIFIER": "Intel64 Family 6 Model 58 Stepping 9, GenuineIntel",
+    "PROCESSOR_LEVEL": "6",
+    "PROCESSOR_REVISION": "3a09",
+    "ProgramData": "C:\\ProgramData",
+    "ProgramFiles": "C:\\Program Files",
+    "ProgramFiles(x86)": "C:\\Program Files (x86)",
+    "ProgramW6432": "C:\\Program Files",
+    "PROMPT": "$P$G",
+    "PSModulePath": "C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules",
+    "PUBLIC": "C:\\Users\\Public",
+    "SystemDrive": "C:",
+    "SystemRoot": "C:\\Windows",
+    "TEMP": "C:\\Users\\Delvis\\AppData\\Local\\Temp",
+    "TMP": "C:\\Users\\Delvis\\AppData\\Local\\Temp",
+    "USERDOMAIN": "DESKTOP-C9VPC4C",
+    "USERDOMAIN_ROAMINGPROFILE": "DESKTOP-C9VPC4C",
+    "USERNAME": "Delvis",
+    "USERPROFILE": "C:\\Users\\Delvis",
+    "windir": "C:\\Windows",
+    "unique_id": "fe0bccc3-6a58-457d-bd1c-f325a9359b84",
+    "status": "online",
+    "pm_uptime": 1760089810634,
+    "axm_actions": [
+      {
+        "action_name": "km:heapdump",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:cpu:profiling:start",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:cpu:profiling:stop",
+        "action_type": "internal",
+        "arity": 1
+      },
+      {
+        "action_name": "km:heap:sampling:start",
+        "action_type": "internal",
+        "arity": 2
+      },
+      {
+        "action_name": "km:heap:sampling:stop",
+        "action_type": "internal",
+        "arity": 1
+      }
+    ],
+    "axm_monitor": {
+      "Used Heap Size": {
+        "value": "13.01",
+        "type": "internal/v8/heap/used",
+        "unit": "MiB",
+        "historic": true
+      },
+      "Heap Usage": {
+        "value": 83.4,
+        "type": "internal/v8/heap/usage",
+        "unit": "%",
+        "historic": true
+      },
+      "Heap Size": {
+        "value": "15.60",
+        "type": "internal/v8/heap/total",
+        "unit": "MiB",
+        "historic": true
+      },
+      "Event Loop Latency p95": {
+        "value": "10338.42",
+        "type": "internal/libuv/latency/p95",
+        "unit": "ms",
+        "historic": true
+      },
+      "Event Loop Latency": {
+        "value": "1.00",
+        "type": "internal/libuv/latency/p50",
+        "unit": "ms",
+        "historic": true
+      },
+      "Active handles": {
+        "value": 4,
+        "type": "internal/libuv/handles",
+        "historic": true
+      },
+      "Active requests": {
+        "value": 0,
+        "type": "internal/libuv/requests",
+        "historic": true
+      }
+    },
+    "axm_options": {
+      "error": true,
+      "heapdump": true,
+      "feature.profiler.heapsnapshot": false,
+      "feature.profiler.heapsampling": true,
+      "feature.profiler.cpu_js": true,
+      "latency": true,
+      "catchExceptions": true,
+      "profiling": true,
+      "metrics": {
+        "http": true,
+        "runtime": true,
+        "eventLoop": true,
+        "network": false,
+        "v8": true
+      },
+      "standalone": false,
+      "module_conf": {},
+      "apm": {
+        "version": "6.1.0",
+        "type": "node"
+      },
+      "module_name": "trading-bot",
+      "module_version": "6.0.13"
+    },
+    "axm_dynamic": {},
+    "created_at": 1760089810634,
+    "restart_time": 0,
+    "unstable_restarts": 0,
+    "version": "1.0.0",
+    "node_version": "22.20.0"
+  }
+]

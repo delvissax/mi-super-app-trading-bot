@@ -1,0 +1,23 @@
+export function generateAllSignals() {
+  // EUR/USD
+  const eurusd = Math.random();
+  const EURUSD = eurusd < 0.4 ? "BUY" : eurusd > 0.6 ? "SELL" : "HOLD";
+
+  // WTI Crude Oil
+  const wti = Math.random();
+  const WTI = wti < 0.4 ? "BUY" : wti > 0.6 ? "SELL" : "HOLD";
+
+  // BTC/USD
+  const btc = Math.random();
+  const BTCUSD = btc < 0.4 ? "BUY" : btc > 0.6 ? "SELL" : "HOLD";
+
+  // Gold
+  const gold = Math.random();
+  const GOLD = gold < 0.4 ? "BUY" : gold > 0.6 ? "SELL" : "HOLD";
+
+  // ETH/USD
+  const eth = Math.random();
+  const ETHUSD = eth < 0.4 ? "BUY" : eth > 0.6 ? "SELL" : "HOLD";
+
+  return { EURUSD, WTI, BTCUSD, GOLD, ETHUSD };
+}

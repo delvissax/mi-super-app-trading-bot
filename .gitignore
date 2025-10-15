@@ -1,0 +1,23 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Directorios de compilación
+dist/
+build/
+
+# Configuración de IDE/editor
+.vscode/
+.idea/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Package lock alternativo (si quieres forzar regeneración)
+package-lock.json
