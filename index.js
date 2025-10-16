@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import nodeCron from 'node-cron';
 import { WebSocketServer } from 'ws';
-import capitalService from './services/capitalService.js';
+import capitalService from './src/services/capitalService.js';
 
 // ===========================================================
 // 🌟 CONFIGURACIÓN INICIAL ULTRA PRO
