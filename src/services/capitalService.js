@@ -3,6 +3,7 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getAuthHeaders } from './capitalAuth.js';
 
 // ===========================================================
 // 🧩 CONFIGURACIÓN INICIAL Y ENV VARIABLES
@@ -287,10 +288,10 @@ export async function placeOrder(
     if (options.stopDistance !== undefined) body.stopDistance = options.stopDistance;
     if (options.profitDistance !== undefined) body.profitDistance = options.profitDistance;
 
-    const headers = { 
-      'X-CAP-API-KEY': apiKey,
-      'X-Request-ID': requestId
-    };
+    const headers = {
+  ...(await getAuthHeaders(mode, apiKey, baseUrl)),
+  'X-Request-ID': requestId
+};
 
     logger(levels.DEBUG, `[${requestId}] 📤 Enviando POST`, {
       endpoint,
@@ -379,10 +380,11 @@ export async function closePosition(dealId, mode = 'demo') {
 
     const { apiKey, baseUrl } = getCredentials(mode);
     const endpoint = `${baseUrl}/api/v1/positions/${dealId.trim()}`;
-    const headers = { 
-      'X-CAP-API-KEY': apiKey,
-      'X-Request-ID': requestId
-    };
+    const headers = {
+  ...(await getAuthHeaders(mode, apiKey, baseUrl)),
+  'X-Request-ID': requestId
+};
+
 
     logger(levels.INFO, `[${requestId}] 🔒 Cerrando posición: ${dealId}`);
 
@@ -453,10 +455,11 @@ export async function getPositions(mode = 'demo') {
 
     const { apiKey, baseUrl } = getCredentials(mode);
     const endpoint = `${baseUrl}/api/v1/positions`;
-    const headers = { 
-      'X-CAP-API-KEY': apiKey,
-      'X-Request-ID': requestId
-    };
+    const headers = {
+  ...(await getAuthHeaders(mode, apiKey, baseUrl)),
+  'X-Request-ID': requestId
+};
+
 
     logger(levels.INFO, `[${requestId}] 📊 Obteniendo posiciones`);
 
@@ -516,10 +519,11 @@ export async function getAccountInfo(mode = 'demo') {
 
     const { apiKey, baseUrl } = getCredentials(mode);
     const endpoint = `${baseUrl}/api/v1/accounts`;
-    const headers = { 
-      'X-CAP-API-KEY': apiKey,
-      'X-Request-ID': requestId
-    };
+    const headers = {
+  ...(await getAuthHeaders(mode, apiKey, baseUrl)),
+  'X-Request-ID': requestId
+};
+
 
     logger(levels.INFO, `[${requestId}] 💰 Solicitando info de cuenta`);
 
