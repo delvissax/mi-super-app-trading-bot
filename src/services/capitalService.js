@@ -683,6 +683,212 @@ export async function healthCheck() {
 }
 
 // ===========================================================
+// 🎯 1. MODIFICAR STOP LOSS Y TAKE PROFIT DE POSICIÓN ABIERTA
+// ===========================================================
+export async function updatePosition(dealId, levels, mode = 'demo') {
+  const start = Date.now();
+  const requestId = `UPDATE-${Date.now()}`;
+
+  try {
+    if (!dealId || typeof dealId !== 'string') throw new TypeError('dealId debe ser un string válido');
+    if (!validModes.has(mode)) throw new RangeError(`Modo inválido: "${mode}"`);
+    if (!levels || typeof levels !== 'object') throw new TypeError('levels debe ser un objeto con stopLevel, profitLevel o trailingStop');
+
+    const { apiKey, baseUrl } = getCredentials(mode);
+    const endpoint = `${baseUrl}/api/v1/positions/${dealId}`;
+    const headers = { ...(await getAuthHeaders(mode, apiKey, baseUrl)), 'X-Request-ID': requestId };
+
+    const body = {};
+    if (levels.stopLevel !== undefined) {
+      if (typeof levels.stopLevel !== 'number') throw new TypeError('stopLevel debe ser un número');
+      body.stopLevel = levels.stopLevel;
+    }
+    if (levels.profitLevel !== undefined) {
+      if (typeof levels.profitLevel !== 'number') throw new TypeError('profitLevel debe ser un número');
+      body.profitLevel = levels.profitLevel;
+    }
+    if (levels.trailingStop !== undefined) {
+      if (typeof levels.trailingStop !== 'number') throw new TypeError('trailingStop debe ser un número');
+      body.trailingStop = levels.trailingStop;
+    }
+
+    logger(levels.INFO, `[${requestId}] 🔧 Modificando posición ${dealId}`, body);
+
+    const response = await axiosRetry(() => axiosInstance.put(endpoint, body, { headers }));
+    const duration = Date.now() - start;
+
+    if (response.status >= 200 && response.status < 300) {
+      logger(levels.SUCCESS, `[${requestId}] Posición modificada en ${duration}ms`);
+      return { success: true, data: response.data, dealId, duration, requestId, timestamp: new Date().toISOString() };
+    }
+
+    throw new Error(`HTTP ${response.status}: ${JSON.stringify(response.data)}`);
+  } catch (error) {
+    logger(levels.ERROR, `[${requestId}] Error modificando posición`, { dealId, error: error.message });
+    return { success: false, error: error.message, dealId, requestId, timestamp: new Date().toISOString() };
+  }
+}
+
+// ===========================================================
+// 🧹 2. CERRAR TODAS LAS POSICIONES DE GOLPE
+// ===========================================================
+export async function closeAllPositions(mode = 'demo') {
+  const start = Date.now();
+  const requestId = `CLOSE-ALL-${Date.now()}`;
+
+  try {
+    if (!validModes.has(mode)) throw new RangeError(`Modo inválido: "${mode}"`);
+    logger(levels.INFO, `[${requestId}] 🚨 Cerrando TODAS las posiciones en ${mode}`);
+
+    const positionsResult = await getPositions(mode);
+    if (!positionsResult.success) throw new Error('No se pudieron obtener las posiciones');
+
+    const positions = positionsResult.data?.positions || [];
+    if (positions.length === 0) return { success: true, message: 'No hay posiciones para cerrar', closed: 0, total: 0, duration: Date.now() - start, requestId, timestamp: new Date().toISOString() };
+
+    const results = await Promise.allSettled(positions.map(pos => closePosition(pos.dealId, mode)));
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    const failed = results.filter(r => r.status === 'rejected' || !r.value.success).map(r => r.reason || r.value?.error);
+    const duration = Date.now() - start;
+
+    logger(levels.SUCCESS, `[${requestId}] Cerradas ${successful}/${positions.length} posiciones en ${duration}ms`);
+    if (failed.length) logger(levels.ERROR, `[${requestId}] Errores en cierres:`, failed);
+
+    return { success: true, message: `Se cerraron ${successful}/${positions.length} posiciones`, closed: successful, total: positions.length, failed, details: results, duration, requestId, timestamp: new Date().toISOString() };
+  } catch (error) {
+    logger(levels.ERROR, `[${requestId}] Error cerrando todas las posiciones`, { error: error.message });
+    return { success: false, error: error.message, requestId, timestamp: new Date().toISOString() };
+  }
+}
+
+// ===========================================================
+// 📉 3. CERRAR SOLO POSICIONES EN PÉRDIDA
+// ===========================================================
+export async function closeLosingPositions(maxLossPercent = -2, mode = 'demo') {
+  const start = Date.now();
+  const requestId = `CLOSE-LOSS-${Date.now()}`;
+
+  try {
+    if (typeof maxLossPercent !== 'number' || maxLossPercent > 0) throw new TypeError('maxLossPercent debe ser un número negativo (ej: -2)');
+
+    logger(levels.INFO, `[${requestId}] 📉 Cerrando posiciones con pérdida > ${maxLossPercent}%`);
+
+    const positionsResult = await getPositions(mode);
+    if (!positionsResult.success) throw new Error('No se pudieron obtener las posiciones');
+
+    const positions = positionsResult.data?.positions || [];
+    if (positions.length === 0) return { success: true, message: 'No hay posiciones abiertas', closed: 0, analyzed: 0, timestamp: new Date().toISOString() };
+
+    const losingPositions = positions.filter(pos => {
+      const profitLoss = parseFloat(pos.profit) || 0;
+      const level = parseFloat(pos.level) || 1;
+      const size = parseFloat(pos.size) || 1;
+      const percentChange = level && size ? (profitLoss / (level * size)) * 100 : 0;
+      return percentChange <= maxLossPercent;
+    });
+
+    if (losingPositions.length === 0) return { success: true, message: `No hay posiciones con pérdida mayor a ${maxLossPercent}%`, closed: 0, analyzed: positions.length, timestamp: new Date().toISOString() };
+
+    const results = await Promise.allSettled(losingPositions.map(pos => closePosition(pos.dealId, mode)));
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    const failed = results.filter(r => r.status === 'rejected' || !r.value.success).map(r => r.reason || r.value?.error);
+    const duration = Date.now() - start;
+
+    logger(levels.SUCCESS, `[${requestId}] Cerradas ${successful}/${losingPositions.length} posiciones perdedoras`);
+    if (failed.length) logger(levels.ERROR, `[${requestId}] Errores en cierres perdedores:`, failed);
+
+    return { success: true, message: `Cerradas ${successful}/${losingPositions.length} posiciones en pérdida`, closed: successful, analyzed: positions.length, threshold: maxLossPercent, failed, details: results, duration, requestId, timestamp: new Date().toISOString() };
+  } catch (error) {
+    logger(levels.ERROR, `[${requestId}] Error cerrando posiciones perdedoras`, { error: error.message });
+    return { success: false, error: error.message, requestId, timestamp: new Date().toISOString() };
+  }
+}
+
+// ===========================================================
+// 📈 4. TOMAR GANANCIAS AUTOMÁTICO
+// ===========================================================
+export async function takeProfits(minProfitPercent = 3, mode = 'demo') {
+  const start = Date.now();
+  const requestId = `TAKE-PROFIT-${Date.now()}`;
+
+  try {
+    if (typeof minProfitPercent !== 'number' || minProfitPercent < 0) throw new TypeError('minProfitPercent debe ser un número positivo (ej: 3)');
+
+    logger(levels.INFO, `[${requestId}] 💰 Cerrando posiciones con ganancia > ${minProfitPercent}%`);
+
+    const positionsResult = await getPositions(mode);
+    if (!positionsResult.success) throw new Error('No se pudieron obtener las posiciones');
+
+    const positions = positionsResult.data?.positions || [];
+    if (positions.length === 0) return { success: true, message: 'No hay posiciones abiertas', closed: 0, analyzed: 0, timestamp: new Date().toISOString() };
+
+    const profitablePositions = positions.filter(pos => {
+      const profitLoss = parseFloat(pos.profit) || 0;
+      const level = parseFloat(pos.level) || 1;
+      const size = parseFloat(pos.size) || 1;
+      const percentChange = level && size ? (profitLoss / (level * size)) * 100 : 0;
+      return percentChange >= minProfitPercent;
+    });
+
+    if (profitablePositions.length === 0) return { success: true, message: `No hay posiciones con ganancia mayor a ${minProfitPercent}%`, closed: 0, analyzed: positions.length, timestamp: new Date().toISOString() };
+
+    const results = await Promise.allSettled(profitablePositions.map(pos => closePosition(pos.dealId, mode)));
+    const successful = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
+    const failed = results.filter(r => r.status === 'rejected' || !r.value.success).map(r => r.reason || r.value?.error);
+    const duration = Date.now() - start;
+
+    logger(levels.SUCCESS, `[${requestId}] 💸 Cerradas ${successful}/${profitablePositions.length} posiciones ganadoras`);
+    if (failed.length) logger(levels.ERROR, `[${requestId}] Errores en cierres ganadores:`, failed);
+
+    return { success: true, message: `Cerradas ${successful}/${profitablePositions.length} posiciones en ganancia`, closed: successful, analyzed: positions.length, threshold: minProfitPercent, failed, details: results, duration, requestId, timestamp: new Date().toISOString() };
+  } catch (error) {
+    logger(levels.ERROR, `[${requestId}] Error tomando ganancias`, { error: error.message });
+    return { success: false, error: error.message, requestId, timestamp: new Date().toISOString() };
+  }
+}
+
+// ===========================================================
+// 📊 5. RESUMEN DE POSICIONES CON ESTADÍSTICAS
+// ===========================================================
+export async function getPositionsSummary(mode = 'demo') {
+  const requestId = `SUMMARY-${Date.now()}`;
+
+  try {
+    const positionsResult = await getPositions(mode);
+    if (!positionsResult.success) throw new Error('No se pudieron obtener las posiciones');
+
+    const positions = positionsResult.data?.positions || [];
+    if (positions.length === 0) return { success: true, total: 0, winning: 0, losing: 0, totalProfit: 0, message: 'No hay posiciones abiertas', timestamp: new Date().toISOString() };
+
+    let totalProfit = 0;
+    let winning = 0;
+    let losing = 0;
+    const details = [];
+
+    positions.forEach(pos => {
+      const profit = parseFloat(pos.profit) || 0;
+      const level = parseFloat(pos.level) || 1;
+      const size = parseFloat(pos.size) || 1;
+      totalProfit += profit;
+
+      if (profit > 0) winning++;
+      else if (profit < 0) losing++;
+
+      const percent = level && size ? ((profit / (level * size)) * 100).toFixed(2) : '0.00';
+      details.push({ dealId: pos.dealId, epic: pos.epic, direction: pos.direction, size: pos.size, profit: profit.toFixed(2), profitPercent: percent + '%' });
+    });
+
+    logger(levels.INFO, `[${requestId}] 📊 Resumen: ${positions.length} posiciones | P/L: ${totalProfit.toFixed(2)}`);
+
+    return { success: true, total: positions.length, winning, losing, neutral: positions.length - winning - losing, totalProfit: parseFloat(totalProfit.toFixed(2)), averageProfit: parseFloat((totalProfit / positions.length).toFixed(2)), details, requestId, timestamp: new Date().toISOString() };
+
+  } catch (error) {
+    logger(levels.ERROR, `[${requestId}] Error obteniendo resumen`, { error: error.message });
+    return { success: false, error: error.message, requestId, timestamp: new Date().toISOString() };
+  }
+}
+
+// ===========================================================
 // 📈 EXPORTACIONES Y CONSTANTES
 // ===========================================================
 
@@ -697,4 +903,11 @@ export default {
   healthCheck,
   getCredentials,
   validateOrderParams,
+  
+  // 🆕 NUEVAS FUNCIONES AVANZADAS
+  updatePosition,
+  closeAllPositions,
+  closeLosingPositions,
+  takeProfits,
+  getPositionsSummary,
 };
