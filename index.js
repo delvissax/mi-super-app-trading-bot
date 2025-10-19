@@ -1,4 +1,6 @@
 // index.js - TRADING BOT ULTRA PRO MAX LEVEL DIOS 🔥🚀
+import './autoRepair.js'; // ejecuta el sistema de auto repair
+console.log("🔹 Index.js iniciado");
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
 import express from 'express';
@@ -13,6 +15,436 @@ import { WebSocketServer } from 'ws';
 import capitalService from './src/services/capitalService.js';
 
 // ===========================================================
+// 🔧/ AUTO-REPAIR SYSTEM - ULTRA PRO CODE VALIDATOR
+// ===========================================================
+
+
+class CodeHealthChecker {
+  constructor() {
+    this.issues = [];
+    this.fixes = [];
+    this.criticalErrors = [];
+  }
+
+
+  async runFullDiagnostic() {
+    console.log('\n╔' + '═'.repeat(58) + '╗');
+    console.log('║  🔧 AUTO-REPAIR SYSTEM INICIADO                         ║');
+    console.log('╚' + '═'.repeat(58) + '╝\n');
+
+
+    const startTime = Date.now();
+
+
+    try {
+      // Check 1: Sintaxis básica
+      await this.checkSyntax();
+      
+      // Check 2: Funciones duplicadas
+      await this.checkDuplicateFunctions();
+      
+      // Check 3: Bloques sin cerrar
+      await this.checkUnclosedBlocks();
+      
+      // Check 4: Variables globales
+      await this.checkGlobalVariables();
+      
+      // Check 5: Memory leaks potenciales
+      await this.checkMemoryLeaks();
+
+
+      const duration = Date.now() - startTime;
+
+
+      this.printReport(duration);
+      
+      if (this.criticalErrors.length > 0) {
+        console.log('\n❌ ERRORES CRÍTICOS DETECTADOS - Abortando inicio\n');
+        this.criticalErrors.forEach(err => console.error(`  💥 ${err}`));
+        process.exit(1);
+      }
+
+
+      return {
+        success: true,
+        issues: this.issues.length,
+        fixes: this.fixes.length,
+        duration
+      };
+
+
+    } catch (error) {
+      console.error('💥 Auto-repair falló:', error.message);
+      return { success: false, error: error.message };
+    }
+  }
+
+
+  async checkSyntax() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      const indexPath = path.join(process.cwd(), 'index.js');
+      
+      if (!fs.existsSync(indexPath)) {
+        this.criticalErrors.push('index.js no encontrado');
+        return;
+      }
+
+
+      const content = fs.readFileSync(indexPath, 'utf8');
+      
+      // Contar llaves, paréntesis, corchetes
+      const counts = {
+        '{': (content.match(/\{/g) || []).length,
+        '}': (content.match(/\}/g) || []).length,
+        '(': (content.match(/\(/g) || []).length,
+        ')': (content.match(/\)/g) || []).length,
+        '[': (content.match(/\[/g) || []).length,
+        ']': (content.match(/\]/g) || []).length,
+      };
+
+
+      const unbalanced = [];
+      
+      if (counts['{'] !== counts['}']) {
+        unbalanced.push(`Llaves: ${counts['{']} aperturas, ${counts['}']} cierres`);
+      }
+      if (counts['('] !== counts[')']) {
+        unbalanced.push(`Paréntesis: ${counts['(']} aperturas, ${counts[')']} cierres`);
+      }
+      if (counts['['] !== counts[']']) {
+        unbalanced.push(`Corchetes: ${counts['[']} aperturas, ${counts[']']} cierres`);
+      }
+
+
+      if (unbalanced.length > 0) {
+        this.issues.push({
+          type: 'syntax',
+          severity: 'high',
+          description: 'Bloques desbalanceados detectados',
+          details: unbalanced
+        });
+      } else {
+        this.fixes.push('✅ Sintaxis de bloques: OK');
+      }
+
+
+    } catch (error) {
+      this.criticalErrors.push(`Error verificando sintaxis: ${error.message}`);
+    }
+  }
+
+
+  async checkDuplicateFunctions() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const content = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8');
+
+
+      // Buscar declaraciones de funciones
+      const functionPattern = /(?:function\s+(\w+)|const\s+(\w+)\s*=\s*(?:async\s*)?\(|let\s+(\w+)\s*=\s*(?:async\s*)?\()/g;
+      const functions = new Map();
+      let match;
+
+
+      while ((match = functionPattern.exec(content)) !== null) {
+        const funcName = match[1] || match[2] || match[3];
+        if (funcName) {
+          if (functions.has(funcName)) {
+            functions.get(funcName).count++;
+          } else {
+            functions.set(funcName, { count: 1, line: content.substring(0, match.index).split('\n').length });
+          }
+        }
+      }
+
+
+      const duplicates = Array.from(functions.entries())
+        .filter(([name, data]) => data.count > 1);
+
+
+      if (duplicates.length > 0) {
+        this.issues.push({
+          type: 'duplicate_functions',
+          severity: 'medium',
+          description: `${duplicates.length} funciones duplicadas detectadas`,
+          details: duplicates.map(([name, data]) => `${name} (${data.count} veces)`)
+        });
+      } else {
+        this.fixes.push('✅ No hay funciones duplicadas');
+      }
+
+
+    } catch (error) {
+      this.issues.push({
+        type: 'duplicate_check_failed',
+        severity: 'low',
+        description: error.message
+      });
+    }
+  }
+
+
+  async checkUnclosedBlocks() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const content = fs.readFileSync(path.join(process.cwd(), 'index.js'), 'utf8');
+      const lines = content.split('\n');
+
+
+      const stack = [];
+      const errors = [];
+
+
+      lines.forEach((line, idx) => {
+        // Detectar aperturas de bloques importantes
+        if (/^\s*(if|for|while|function|class|try|catch)\s*\(/.test(line)) {
+          const openBraces = (line.match(/\{/g) || []).length;
+          const closeBraces = (line.match(/\}/g) || []).length;
+          
+          if (openBraces > closeBraces) {
+            stack.push({ type: 'block', line: idx + 1 });
+          }
+        }
+
+
+        // Detectar arrow functions
+        if (/=>\s*\{/.test(line)) {
+          const openBraces = (line.match(/\{/g) || []).length;
+          const closeBraces = (line.match(/\}/g) || []).length;
+          
+          if (openBraces > closeBraces) {
+            stack.push({ type: 'arrow', line: idx + 1 });
+          }
+        }
+
+
+        // Detectar cierres
+        const closeBraces = (line.match(/\}/g) || []).length;
+        for (let i = 0; i < closeBraces; i++) {
+          if (stack.length > 0) {
+            stack.pop();
+          }
+        }
+      });
+
+
+      if (stack.length > 0) {
+        this.issues.push({
+          type: 'unclosed_blocks',
+          severity: 'high',
+          description: `${stack.length} bloques potencialmente sin cerrar`,
+          details: stack.map(s => `Línea ${s.line} (${s.type})`)
+        });
+      } else {
+        this.fixes.push('✅ Todos los bloques están cerrados correctamente');
+      }
+
+
+    } catch (error) {
+      this.issues.push({
+        type: 'block_check_failed',
+        severity: 'low',
+        description: error.message
+      });
+    }
+  }
+
+
+  async checkGlobalVariables() {
+    try {
+      const dangerous = [
+        'broadcast',
+        'getActiveWebSocketClients',
+        'getTotalWebSocketClients'
+      ];
+
+
+      const defined = dangerous.filter(varName => typeof global[varName] !== 'undefined');
+
+
+      if (defined.length > 0) {
+        this.fixes.push(`✅ Variables globales OK: ${defined.join(', ')}`);
+      } else {
+        this.issues.push({
+          type: 'missing_globals',
+          severity: 'medium',
+          description: 'Algunas variables globales esperadas no están definidas',
+          details: dangerous.filter(v => typeof global[v] === 'undefined')
+        });
+      }
+
+
+    } catch (error) {
+      this.issues.push({
+        type: 'global_check_failed',
+        severity: 'low',
+        description: error.message
+      });
+    }
+  }
+
+
+  async checkMemoryLeaks() {
+    try {
+      const suspects = [];
+
+
+      // Check timers no limpiados
+      if (typeof setInterval !== 'undefined') {
+        const activeTimers = process._getActiveHandles().filter(h => h.constructor.name === 'Timeout');
+        if (activeTimers.length > 10) {
+          suspects.push(`${activeTimers.length} timers activos (posible leak)`);
+        }
+      }
+
+
+      // Check event listeners
+      if (process.listenerCount('uncaughtException') === 0) {
+        this.issues.push({
+          type: 'missing_error_handler',
+          severity: 'high',
+          description: 'No hay handler para uncaughtException'
+        });
+      } else {
+        this.fixes.push('✅ Error handlers configurados');
+      }
+
+
+      if (suspects.length > 0) {
+        this.issues.push({
+          type: 'memory_leak_suspects',
+          severity: 'medium',
+          description: 'Posibles memory leaks detectados',
+          details: suspects
+        });
+      }
+
+
+    } catch (error) {
+      this.issues.push({
+        type: 'memory_check_failed',
+        severity: 'low',
+        description: error.message
+      });
+    }
+  }
+
+
+  printReport(duration) {
+    console.log('\n╔' + '═'.repeat(58) + '╗');
+    console.log('║  📊 REPORTE DE DIAGNÓSTICO                              ║');
+    console.log('╠' + '═'.repeat(58) + '╣');
+    console.log('║                                                          ║');
+    
+    // Fixes
+    if (this.fixes.length > 0) {
+      console.log('║  ✅ SISTEMAS SALUDABLES:                                 ║');
+      this.fixes.forEach(fix => {
+        const line = `║    ${fix}`.padEnd(61) + '║';
+        console.log(line.substring(0, 61) + '║');
+      });
+      console.log('║                                                          ║');
+    }
+
+
+    // Issues
+    if (this.issues.length > 0) {
+      console.log('║  ⚠️  ISSUES DETECTADOS:                                  ║');
+      this.issues.forEach(issue => {
+        const severityIcon = issue.severity === 'high' ? '🔴' : 
+                            issue.severity === 'medium' ? '🟡' : '🟢';
+        const line = `║    ${severityIcon} ${issue.description}`.padEnd(61) + '║';
+        console.log(line.substring(0, 61) + '║');
+        
+        if (issue.details && Array.isArray(issue.details)) {
+          issue.details.slice(0, 3).forEach(detail => {
+            const detailLine = `║       - ${detail}`.padEnd(61) + '║';
+            console.log(detailLine.substring(0, 61) + '║');
+          });
+        }
+      });
+      console.log('║                                                          ║');
+    }
+
+
+    // Critical Errors
+    if (this.criticalErrors.length > 0) {
+      console.log('║  💥 ERRORES CRÍTICOS:                                    ║');
+      this.criticalErrors.forEach(error => {
+        const line = `║    ❌ ${error}`.padEnd(61) + '║';
+        console.log(line.substring(0, 61) + '║');
+      });
+      console.log('║                                                          ║');
+    }
+
+
+    // Summary
+    console.log('╠' + '═'.repeat(58) + '╣');
+    const summaryLine = `║  📈 Total: ${this.fixes.length} OK | ${this.issues.length} Issues | ${this.criticalErrors.length} Critical`.padEnd(61) + '║';
+    console.log(summaryLine.substring(0, 61) + '║');
+    const timeLine = `║  ⏱️  Tiempo: ${duration}ms`.padEnd(61) + '║';
+    console.log(timeLine.substring(0, 61) + '║');
+    console.log('╚' + '═'.repeat(58) + '╝\n');
+
+
+    // Recomendaciones
+    if (this.issues.length > 0) {
+      console.log('💡 RECOMENDACIONES:\n');
+      const highPriority = this.issues.filter(i => i.severity === 'high');
+      if (highPriority.length > 0) {
+        console.log('🔴 Atender issues de prioridad ALTA antes de producción');
+      }
+      console.log('📝 Revisa los detalles arriba para más información\n');
+    }
+  }
+}
+
+
+// 🚀 EJECUTAR AUTO-REPAIR AL INICIO
+const codeHealthChecker = new CodeHealthChecker();
+
+
+// Esta promesa se resuelve antes de iniciar el servidor
+const healthCheckPromise = codeHealthChecker.runFullDiagnostic();
+// ===========================================================
+// 🚀 INICIO DEL SERVIDOR LEGENDARIO (CON AUTO-REPAIR)
+// ===========================================================
+async function startServer() {
+  const startTime = performance.now();
+  
+  try {
+    // 🔧 ESPERAR AUTO-REPAIR
+    const repairResult = await healthCheckPromise;
+    
+    if (!repairResult.success) {
+      throw new Error('Auto-repair failed: ' + repairResult.error);
+    }
+
+
+    if (repairResult.issues > 5) {
+      logger.warn(`⚠️ ${repairResult.issues} issues detectados - Revisar antes de producción`);
+    }
+
+
+    // 🎨 BANNER ÉPICO
+    console.log('\n');
+    console.log('╔' + '═'.repeat(58) + '╗');
+    console.log('║' + ' '.repeat(58) + '║');
+    console.log('║' + '  🚀 TRADING BOT LEGENDARIO ULTRA PRO MAX 2.0  '.padEnd(58) + '║');
+    console.log('║' + ' '.repeat(58) + '║');
+    console.log('╚' + '═'.repeat(58) + '╝');
+    console.log('\n');
+
+
+    // ... resto del código de startServer ...
+
+
+// ===========================================================
 // 🌟 CONFIGURACIÓN INICIAL ULTRA PRO
 // ===========================================================
 dotenv.config();
@@ -22,6 +454,22 @@ const server = createServer(app);
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const wss = new WebSocketServer({ server, path: '/ws' });
+const gracefulShutdown = () => {
+  logger.info('Iniciando cierre gracioso...');
+  server.close(() => {
+    logger.info('Servidor cerrado correctamente. Terminando proceso.');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    logger.error('No se pudo cerrar el servidor a tiempo, forzando salida.');
+    process.exit(1);
+  }, 5000);
+};
+
+
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
+
 
 // ===========================================================
 // 📊 SISTEMA DE MÉTRICAS EN TIEMPO REAL
@@ -191,13 +639,7 @@ app.get('/', (req, res) => {
     documentation: 'https://github.com/yourrepo/trading-bot',
   });
 });
-// Definir una sola vez la función para reutilizarla en varios endpoints
-const formatUptime = (seconds) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return `${h}h ${m}m ${s}s`;
-};
+
 
 // Health check ultra detallado
 app.get('/health', async (req, res) => {
@@ -887,7 +1329,7 @@ const executeBroadcastPipeline = async ({
       type: 'order_placed',
       event: 'ORDER_EXECUTED',
       version: '2.0',
-       Object.freeze({
+       data: Object.freeze({
         requestId: orderData?.requestId || null,
         orderId: result?.orderId || result?.dealId || crypto.randomUUID(),
         dealReference: result?.dealReference || null,
@@ -1012,29 +1454,29 @@ const executeBroadcastPipeline = async ({
 
   } catch (fatalError) {
     // 🛡️ Modo emergencia
-    logger.error('💀 [FATAL] Falló el pipeline completo', {
-      error: fatalError.message,
-      stack: fatalError.stack
-    });
+logger.error('💀 [FATAL] Falló el pipeline completo', {
+  error: fatalError?.message,
+  stack: fatalError?.stack
+});
 
-    try {
-      broadcast({
-        type: 'order_placed',
-        event: 'ORDER_EXECUTED',
-        data: {
-          symbol: orderData.symbol,
-          status: 'DEGRADED_MODE',
-          timestamp: new Date().toISOString()
-        },
-        error: 'FATAL_BROADCAST_FALLBACK'
-      });
-    } catch (emergencyError) {
-      logger.error('💀💀 Broadcast de emergencia también falló', {
-        error: emergencyError.message
-      });
-    }
-  }
-};
+
+try {
+  broadcast({
+    type: 'order_placed',
+    event: 'ORDER_EXECUTED',
+    data: {
+      symbol: orderData?.symbol || 'UNKNOWN',
+      status: 'DEGRADED_MODE',
+      timestamp: new Date().toISOString()
+    },
+    error: 'FATAL_BROADCAST_FALLBACK'
+  });
+} catch (emergencyError) {
+  logger.error('💀💀 Broadcast de emergencia también falló', {
+    error: emergencyError?.message
+  });
+}
+
 
 // 🚀 Ejecutar broadcast pipeline sin bloquear respuesta
 executeBroadcastPipeline().catch(err => {
@@ -3135,18 +3577,7 @@ function formatDuration(ms) {
   if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
   return `${seconds}s`;
 }
-function formatUptime(seconds) {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  const parts = [];
-  if (days > 0) parts.push(`${days}d`);
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  if (secs > 0 || parts.length === 0) parts.push(`${secs}s`);
-  return parts.join(' ');
-}
+
 // ===========================================================
 // 🔄 GRACEFUL SHUTDOWN LEGENDARIO
 // ===========================================================
@@ -3695,9 +4126,9 @@ app.post('/api/ws/disconnect/:clientId', (req, res) => {
   });
 });
 // ===========================================================
-// 💎 EXPORTACIONES PARA TESTING
+// 💎 EXPORTACIONES PARA TESTING (FORMATO ESM)
 // ===========================================================
-module.exports = {
+export {
   app,
   server,
   wss,
@@ -3705,4 +4136,3 @@ module.exports = {
   getActiveWebSocketClients,
   gracefulShutdown
 };
-
