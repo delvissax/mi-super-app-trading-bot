@@ -1,6 +1,12 @@
-// index.js - TRADING BOT ULTRA PRO MAX LEVEL DIOS 🔥🚀
+// index.js - TRADING BOT ULTRA PRO MAX LEVEL DIOS
+
+// 🧠 Auto Repair y módulo base
 import './autoRepair.js'; // ejecuta el sistema de auto repair
+import saludo, { PI, multiplicar } from './mod.js';
 console.log("🔹 Index.js iniciado");
+console.log(saludo());
+
+// ⚙️ Dependencias principales
 import crypto from 'crypto';
 import { performance } from 'perf_hooks';
 import express from 'express';
@@ -12,7 +18,10 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import nodeCron from 'node-cron';
 import { WebSocketServer } from 'ws';
+
+// 🧩 Servicios
 import capitalService from './src/services/capitalService.js';
+
 
 // ===========================================================
 // 🔧/ AUTO-REPAIR SYSTEM - ULTRA PRO CODE VALIDATOR
