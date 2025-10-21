@@ -2,7 +2,8 @@
 
 // 🧠 Auto Repair y módulo base
 import './autoRepair.js'; // ejecuta el sistema de auto repair
-import saludo, { PI, multiplicar, runSmartCheck } from './src/mod.js';
+import saludo, { PI, multiplicar } from './mod.js';
+
 
 console.log("🔹 Index.js iniciado");
 console.log(saludo());
