@@ -2,10 +2,12 @@
 
 // 🧠 Auto Repair y módulo base
 import './autoRepair.js'; // ejecuta el sistema de auto repair
-import saludo, { PI, multiplicar } from './mod.js';
+import { PI, multiplicar, saludo } from "./mod.js";
+console.log("🚀 index.js iniciado");
+console.log("Valor de PI:", PI);
+console.log("2 × 5 =", multiplicar(2, 5));
+saludo();
 
-console.log('🔹 Index.js iniciado');
-console.log(saludo());
 
 // ⚙️ Dependencias principales
 import crypto from 'crypto';
