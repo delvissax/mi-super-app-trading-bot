@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 /**
@@ -7,16 +7,14 @@ dotenv.config();
  * @returns {object} headers con API Key
  */
 export function getAuthHeaders(isDemo = true) {
-    const apiKey = isDemo
-        ? process.env.CAPITAL_API_KEY_DEMO
-        : process.env.CAPITAL_API_KEY_REAL;
+  const apiKey = isDemo ? process.env.CAPITAL_API_KEY_DEMO : process.env.CAPITAL_API_KEY_REAL;
 
-    if (!apiKey) {
-        throw new Error(`API Key ${isDemo ? 'DEMO' : 'REAL'} no encontrada en .env`);
-    }
+  if (!apiKey) {
+    throw new Error(`API Key ${isDemo ? "DEMO" : "REAL"} no encontrada en .env`);
+  }
 
-    return {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-    };
+  return {
+    Authorization: `Bearer ${apiKey}`,
+    "Content-Type": "application/json",
+  };
 }

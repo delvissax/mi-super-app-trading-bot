@@ -22,6 +22,265 @@ import { WebSocketServer } from 'ws';
 // 🧩 Servicios
 import capitalService from './src/services/capitalService.js';
 
+// Exportar para uso global
+global.broadcast = broadcast;
+global.getActiveWebSocketClients = getActiveWebSocketClients;
+global.getTotalWebSocketClients = getTotalWebSocketClients;
+global.getBroadcastQueueSize = getBroadcastQueueSize;
+// ===========================================================
+// ⏰ CRON JOBS ULTRA PRO MAX
+// ===========================================================
+// 📊 Job cada minuto - Monitoreo de métricas
+nodeCron.schedule('* * * * *', () => {
+  try {
+    const metricsData = {
+      timestamp: new Date().toISOString(),
+      activeConnections: clientsStore.size,
+      metrics: {
+        api: global.metrics?.api || {},
+        orders: global.metrics?.orders || {},
+        positions: global.metrics?.positions || {},
+        websocket: {
+          connected: clientsStore.size,
+          totalMessages: Array.from(clientsStore.values())
+            .reduce((sum, c) => sum + c.messageCount, 0)
+        }
+      },
+      system: {
+        memory: {
+          used: process.memoryUsage().heapUsed / 1024 / 1024,
+          usagePercent: (process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100).toFixed(2)
+        },
+        uptime: process.uptime()
+      }
+    };
+    logger.debug('⏰ Cron: Metrics update', {
+      clients: clientsStore.size,
+      apiCalls: metricsData.metrics.api.calls || 0
+    });
+    // Broadcast a clientes suscritos
+    broadcast({
+      type: 'metrics_update',
+      event: 'SCHEDULED_METRICS',
+      data: metricsData
+    }, { channel: 'metrics' });
+  } catch (error) {
+    logger.error('💥 Error in metrics cron job', {
+      error: error.message
+    });
+  }
+});
+// 🏥 Job cada 5 minutos - Health check automático
+nodeCron.schedule('*/5 * * * *', async () => {
+  try {
+    logger.info('⏰ Cron: Running automated health check');
+    const healthData = {
+      timestamp: new Date().toISOString(),
+      services: {},
+      overall: 'HEALTHY'
+    };
+    // Check Capital.com API
+    try {
+      const capitalHealth = await Promise.race([
+        capitalService.healthCheck?.() || capitalService.testConnection?.() || 
+        Promise.resolve({ success: true }),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        )
+      ]);
+      healthData.services.capitalApi = {
+        status: capitalHealth.success ? 'CONNECTED' : 'DEGRADED',
+        timestamp: new Date().toISOString()
+      };
+      if (!capitalHealth.success) {
+        healthData.overall = 'DEGRADED';
+        logger.warn('⚠️ Capital.com API health check failed');
+      }
+    } catch (error) {
+      healthData.services.capitalApi = {
+        status: 'DISCONNECTED',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
+      healthData.overall = 'CRITICAL';
+    }
+    // Check Redis (si existe)
+    if (global.redisClient) {
+      try {
+        await global.redisClient.ping();
+        healthData.services.redis = {
+          status: 'CONNECTED',
+          timestamp: new Date().toISOString()
+        };
+      } catch (error) {
+        healthData.services.redis = {
+          status: 'DISCONNECTED',
+          error: error.message,
+          timestamp: new Date().toISOString()
+        };
+        if (healthData.overall === 'HEALTHY') {
+          healthData.overall = 'DEGRADED';
+        }
+      }
+    }
+    logger.info('✅ Health check completed', {
+      overall: healthData.overall,
+      services: Object.keys(healthData.services).length
+    });
+    // Broadcast a clientes suscritos
+    broadcast({
+      type: 'health_update',
+      event: 'SCHEDULED_HEALTH_CHECK',
+      data: healthData
+    }, { channel: 'health' });
+    // Alertar si hay problemas críticos
+    if (healthData.overall === 'CRITICAL' && global.alertService) {
+      global.alertService.critical('Health check failed', healthData);
+    }
+  } catch (error) {
+    logger.error('💥 Error in health check cron job', {
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+// 🧹 Job cada hora - Limpieza de métricas antiguas
+nodeCron.schedule('0 * * * *', () => {
+  try {
+    logger.info('⏰ Cron: Running metrics cleanup');
+    // Limpiar timestamps viejos de rate limiting
+    clientsStore.forEach((client) => {
+      const oneHourAgo = Date.now() - 3600000;
+      client.messageTimestamps = client.messageTimestamps.filter(t => t > oneHourAgo);
+    });
+    logger.info('✅ Metrics cleanup completed');
+  } catch (error) {
+    logger.error('💥 Error in cleanup cron job', {
+      error: error.message
+    });
+  }
+});
+// 📈 Job diario - Reporte de estadísticas
+nodeCron.schedule('0 0 * * *', () => {
+  try {
+    logger.info('⏰ Cron: Generating daily report');
+    const report = {
+      date: new Date().toISOString().split('T')[0],
+      metrics: {
+        api: global.metrics?.api || {},
+        orders: global.metrics?.orders || {},
+        websocket: {
+          peakConnections: global.metrics?.websocket?.peakConnections || 0,
+          totalConnections: global.metrics?.websocket?.totalConnections || 0
+        }
+      },
+      uptime: formatUptime(process.uptime())
+    };
+    logger.success('📊 Daily Report', report);
+    // Guardar en archivo o DB si está configurado
+    if (global.reportStorage) {
+      global.reportStorage.save('daily', report);
+    }
+  } catch (error) {
+    logger.error('💥 Error generating daily report', {
+      error: error.message
+    });
+  }
+});
+// ===========================================================
+// 🚫 MANEJO DE ERRORES GLOBAL LEGENDARIO
+// ===========================================================
+// 404 Handler Ultra Pro
+app.use((req, res) => {
+  const requestId = `404-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  
+  logger.warn('🚫 Route not found', {
+    requestId,
+    method: req.method,
+    path: req.url,
+    ip: req.ip
+  });
+  res.status(404).json({
+    success: false,
+    status: 'NOT_FOUND',
+    requestId,
+    error: 'Endpoint no encontrado',
+    path: req.url,
+    method: req.method,
+    suggestion: 'Verifica la documentación de la API',
+    availableEndpoints: {
+      core: [
+        'GET /',
+        'GET /health',
+        'GET /metrics'
+      ],
+      trading: [
+        'POST /api/orders',
+        'GET /api/positions',
+        'POST /api/positions/close'
+      ],
+      account: [
+        'GET /api/account'
+      ],
+      websocket: [
+        'WS /ws'
+      ]
+    },
+    documentation: '/api/docs', // Si tienes docs
+    timestamp: new Date().toISOString()
+  });
+});
+// Error Handler Global Ultra Pro
+app.use((err, req, res, next) => {
+  const requestId = `ERR-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  const isProduction = NODE_ENV === 'production';
+  // Logging detallado
+  logger.error('💥 Unhandled error', {
+    requestId,
+    error: err.message,
+    stack: err.stack,
+    path: req.url,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.headers['user-agent']
+  });
+  // Determinar status code
+  const statusCode = err.statusCode || err.status || 500;
+  // Respuesta
+  res.status(statusCode).json({
+    success: false,
+    status: 'ERROR',
+    requestId,
+    error: isProduction ? 'Error interno del servidor' : err.message,
+    errorType: err.constructor.name,
+    ...(!isProduction && {
+      stack: err.stack,
+      details: err.details || null
+    }),
+    timestamp: new Date().toISOString()
+  });
+  // Alertar si es error crítico
+  if (statusCode === 500 && global.alertService) {
+    global.alertService.error('Unhandled server error', {
+      requestId,
+      error: err.message,
+      path: req.url
+    });
+  }
+});
+
+// ===========================================================
+// 💎 EXPORTACIONES PARA TESTING (FORMATO ESM)
+// ===========================================================
+export {
+  app,
+  server,
+  wss,
+  broadcast,
+  getActiveWebSocketClients,
+  gracefulShutdown
+};
+
 
 // ===========================================================
 // 🔧/ AUTO-REPAIR SYSTEM - ULTRA PRO CODE VALIDATOR
@@ -423,7 +682,7 @@ const healthCheckPromise = codeHealthChecker.runFullDiagnostic();
 // ===========================================================
 // 🚀 INICIO DEL SERVIDOR LEGENDARIO (CON AUTO-REPAIR)
 // ===========================================================
-function startServer() {
+async function startServer() {
   const startTime = performance.now();
   
   try {
@@ -1461,13 +1720,13 @@ const executeBroadcastPipeline = async ({
       });
     }
 
-  } catch (fatalError) {
+  } catch (fatalError)  {  
     // 🛡️ Modo emergencia
 logger.error('💀 [FATAL] Falló el pipeline completo', {
   error: fatalError?.message,
   stack: fatalError?.stack
 });
-
+ 
 
 try {
   broadcast({
@@ -2958,7 +3217,7 @@ wss.on('connection', async (ws, req) => {
       timestamp: new Date().toISOString(),
       serverTime: Date.now()
     };
-    if (ws.readyState === 1) { ws.send(JSON.stringify(welcomeMessage)); }
+    ws.send(JSON.stringify(welcomeMessage));
     // 🔄 HEARTBEAT - Pong Response
     ws.on('pong', () => {
       client.isAlive = true;
@@ -3032,7 +3291,7 @@ wss.on('connection', async (ws, req) => {
         }
         const processingTime = (performance.now() - msgStartTime).toFixed(2);
         response.processingTime = `${processingTime}ms`;
-        if (ws.readyState === 1) { ws.send(JSON.stringify(response)); }
+        ws.send(JSON.stringify(response));
       } catch (error) {
         logger.error('💥 Error processing WS message', {
           clientId: client.id,
@@ -3087,7 +3346,7 @@ wss.on('connection', async (ws, req) => {
   }
 });
 // 🎯 MESSAGE HANDLERS
-function handleSubscribe(client, data) {
+async function handleSubscribe(client, data) {
   const { channels = [] } = data;
   if (!Array.isArray(channels)) {
     throw new Error('Channels must be an array');
@@ -3131,7 +3390,7 @@ function handleSubscribe(client, data) {
     timestamp: new Date().toISOString()
   };
 }
-function handleUnsubscribe(client, data) {
+async function handleUnsubscribe(client, data) {
   const { channels = [] } = data;
   if (channels.length === 0) {
     client.subscriptions.clear();
@@ -3144,7 +3403,7 @@ function handleUnsubscribe(client, data) {
     timestamp: new Date().toISOString()
   };
 }
-function handleGetMetrics(client) {
+async function handleGetMetrics(client) {
   return {
     type: 'metrics',
     data: {
@@ -3159,7 +3418,7 @@ function handleGetMetrics(client) {
     timestamp: new Date().toISOString()
   };
 }
-function handleGetStatus(client) {
+async function handleGetStatus(client) {
   return {
     type: 'status',
     data: {
@@ -3177,7 +3436,7 @@ function handleGetStatus(client) {
     timestamp: new Date().toISOString()
   };
 }
-function handleGetClients(client) {
+async function handleGetClients(client) {
   // Solo usuarios autorizados pueden ver otros clientes
   if (!client.metadata.isAdmin) {
     return {
@@ -3196,7 +3455,7 @@ function handleGetClients(client) {
     timestamp: new Date().toISOString()
   };
 }
-function handleSetMetadata(client, data) {
+async function handleSetMetadata(client, data) {
   client.metadata = { ...client.metadata, ...data };
   
   return {
@@ -3208,12 +3467,12 @@ function handleSetMetadata(client, data) {
 // 🛡️ ERROR SENDER
 function sendError(ws, message, details = {}) {
   try {
-    if (ws.readyState === 1) { ws.send(JSON.stringify({
+    ws.send(JSON.stringify({
       type: 'error',
       error: message,
       details,
       timestamp: new Date().toISOString()
-    })); }
+    }));
   } catch (error) {
     logger.error('Failed to send error message', { error: error.message });
   }
@@ -3293,7 +3552,7 @@ function broadcast(message, options = {}) {
       return;
     }
     try {
-      if (ws.readyState === 1) { ws.send(data); }
+      ws.send(data);
       sent++;
     } catch (error) {
       failed++;
@@ -3327,252 +3586,7 @@ function getBroadcastQueueSize() {
   // Implementar si tienes cola de mensajes
   return 0;
 }
-// Exportar para uso global
-global.broadcast = broadcast;
-global.getActiveWebSocketClients = getActiveWebSocketClients;
-global.getTotalWebSocketClients = getTotalWebSocketClients;
-global.getBroadcastQueueSize = getBroadcastQueueSize;
-// ===========================================================
-// ⏰ CRON JOBS ULTRA PRO MAX
-// ===========================================================
-// 📊 Job cada minuto - Monitoreo de métricas
-nodeCron.schedule('* * * * *', () => {
-  try {
-    const metricsData = {
-      timestamp: new Date().toISOString(),
-      activeConnections: clientsStore.size,
-      metrics: {
-        api: global.metrics?.api || {},
-        orders: global.metrics?.orders || {},
-        positions: global.metrics?.positions || {},
-        websocket: {
-          connected: clientsStore.size,
-          totalMessages: Array.from(clientsStore.values())
-            .reduce((sum, c) => sum + c.messageCount, 0)
-        }
-      },
-      system: {
-        memory: {
-          used: process.memoryUsage().heapUsed / 1024 / 1024,
-          usagePercent: (process.memoryUsage().heapUsed / process.memoryUsage().heapTotal * 100).toFixed(2)
-        },
-        uptime: process.uptime()
-      }
-    };
-    logger.debug('⏰ Cron: Metrics update', {
-      clients: clientsStore.size,
-      apiCalls: metricsData.metrics.api.calls || 0
-    });
-    // Broadcast a clientes suscritos
-    broadcast({
-      type: 'metrics_update',
-      event: 'SCHEDULED_METRICS',
-      data: metricsData
-    }, { channel: 'metrics' });
-  } catch (error) {
-    logger.error('💥 Error in metrics cron job', {
-      error: error.message
-    });
-  }
-});
-// 🏥 Job cada 5 minutos - Health check automático
-nodeCron.schedule('*/5 * * * *', async () => {
-  try {
-    logger.info('⏰ Cron: Running automated health check');
-    const healthData = {
-      timestamp: new Date().toISOString(),
-      services: {},
-      overall: 'HEALTHY'
-    };
-    // Check Capital.com API
-    try {
-      const capitalHealth = await Promise.race([
-        capitalService.healthCheck?.() || capitalService.testConnection?.() || 
-        Promise.resolve({ success: true }),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout')), 5000)
-        )
-      ]);
-      healthData.services.capitalApi = {
-        status: capitalHealth.success ? 'CONNECTED' : 'DEGRADED',
-        timestamp: new Date().toISOString()
-      };
-      if (!capitalHealth.success) {
-        healthData.overall = 'DEGRADED';
-        logger.warn('⚠️ Capital.com API health check failed');
-      }
-    } catch (error) {
-      healthData.services.capitalApi = {
-        status: 'DISCONNECTED',
-        error: error.message,
-        timestamp: new Date().toISOString()
-      };
-      healthData.overall = 'CRITICAL';
-    }
-    // Check Redis (si existe)
-    if (global.redisClient) {
-      try {
-        await global.redisClient.ping();
-        healthData.services.redis = {
-          status: 'CONNECTED',
-          timestamp: new Date().toISOString()
-        };
-      } catch (error) {
-        healthData.services.redis = {
-          status: 'DISCONNECTED',
-          error: error.message,
-          timestamp: new Date().toISOString()
-        };
-        if (healthData.overall === 'HEALTHY') {
-          healthData.overall = 'DEGRADED';
-        }
-      }
-    }
-    logger.info('✅ Health check completed', {
-      overall: healthData.overall,
-      services: Object.keys(healthData.services).length
-    });
-    // Broadcast a clientes suscritos
-    broadcast({
-      type: 'health_update',
-      event: 'SCHEDULED_HEALTH_CHECK',
-      data: healthData
-    }, { channel: 'health' });
-    // Alertar si hay problemas críticos
-    if (healthData.overall === 'CRITICAL' && global.alertService) {
-      global.alertService.critical('Health check failed', healthData);
-    }
-  } catch (error) {
-    logger.error('💥 Error in health check cron job', {
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
-// 🧹 Job cada hora - Limpieza de métricas antiguas
-nodeCron.schedule('0 * * * *', () => {
-  try {
-    logger.info('⏰ Cron: Running metrics cleanup');
-    // Limpiar timestamps viejos de rate limiting
-    clientsStore.forEach((client) => {
-      const oneHourAgo = Date.now() - 3600000;
-      client.messageTimestamps = client.messageTimestamps.filter(t => t > oneHourAgo);
-    });
-    logger.info('✅ Metrics cleanup completed');
-  } catch (error) {
-    logger.error('💥 Error in cleanup cron job', {
-      error: error.message
-    });
-  }
-});
-// 📈 Job diario - Reporte de estadísticas
-nodeCron.schedule('0 0 * * *', () => {
-  try {
-    logger.info('⏰ Cron: Generating daily report');
-    const report = {
-      date: new Date().toISOString().split('T')[0],
-      metrics: {
-        api: global.metrics?.api || {},
-        orders: global.metrics?.orders || {},
-        websocket: {
-          peakConnections: global.metrics?.websocket?.peakConnections || 0,
-          totalConnections: global.metrics?.websocket?.totalConnections || 0
-        }
-      },
-      uptime: formatUptime(process.uptime())
-    };
-    logger.success('📊 Daily Report', report);
-    // Guardar en archivo o DB si está configurado
-    if (global.reportStorage) {
-      global.reportStorage.save('daily', report);
-    }
-  } catch (error) {
-    logger.error('💥 Error generating daily report', {
-      error: error.message
-    });
-  }
-});
-// ===========================================================
-// 🚫 MANEJO DE ERRORES GLOBAL LEGENDARIO
-// ===========================================================
-// 404 Handler Ultra Pro
-app.use((req, res) => {
-  const requestId = `404-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
-  
-  logger.warn('🚫 Route not found', {
-    requestId,
-    method: req.method,
-    path: req.url,
-    ip: req.ip
-  });
-  res.status(404).json({
-    success: false,
-    status: 'NOT_FOUND',
-    requestId,
-    error: 'Endpoint no encontrado',
-    path: req.url,
-    method: req.method,
-    suggestion: 'Verifica la documentación de la API',
-    availableEndpoints: {
-      core: [
-        'GET /',
-        'GET /health',
-        'GET /metrics'
-      ],
-      trading: [
-        'POST /api/orders',
-        'GET /api/positions',
-        'POST /api/positions/close'
-      ],
-      account: [
-        'GET /api/account'
-      ],
-      websocket: [
-        'WS /ws'
-      ]
-    },
-    documentation: '/api/docs', // Si tienes docs
-    timestamp: new Date().toISOString()
-  });
-});
-// Error Handler Global Ultra Pro
-app.use((err, req, res, next) => {
-  const requestId = `ERR-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
-  const isProduction = NODE_ENV === 'production';
-  // Logging detallado
-  logger.error('💥 Unhandled error', {
-    requestId,
-    error: err.message,
-    stack: err.stack,
-    path: req.url,
-    method: req.method,
-    ip: req.ip,
-    userAgent: req.headers['user-agent']
-  });
-  // Determinar status code
-  const statusCode = err.statusCode || err.status || 500;
-  // Respuesta
-  res.status(statusCode).json({
-    success: false,
-    status: 'ERROR',
-    requestId,
-    error: isProduction ? 'Error interno del servidor' : err.message,
-    errorType: err.constructor.name,
-    ...(!isProduction && {
-      stack: err.stack,
-      details: err.details || null
-    }),
-    timestamp: new Date().toISOString()
-  });
-  // Alertar si es error crítico
-  if (statusCode === 500 && global.alertService) {
-    global.alertService.error('Unhandled server error', {
-      requestId,
-      error: err.message,
-      path: req.url
-    });
-  }
-});
+
 // ===========================================================
 // 🛠️ UTILIDADES LEGENDARIAS
 // ===========================================================
@@ -3591,7 +3605,7 @@ function formatDuration(ms) {
 // 🔄 GRACEFUL SHUTDOWN LEGENDARIO
 // ===========================================================
 let isShuttingDown = false;
-function gracefulShutdown(signal) {
+async function gracefulShutdown(signal) {
   if (isShuttingDown) {
     logger.warn('⚠️ Shutdown already in progress...');
     return;
@@ -4134,14 +4148,3 @@ app.post('/api/ws/disconnect/:clientId', (req, res) => {
     reason
   });
 });
-// ===========================================================
-// 💎 EXPORTACIONES PARA TESTING (FORMATO ESM)
-// ===========================================================
-export {
-  app,
-  server,
-  wss,
-  broadcast,
-  getActiveWebSocketClients,
-  gracefulShutdown
-};

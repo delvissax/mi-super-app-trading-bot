@@ -1,9 +1,9 @@
 // index.js dentro de carpeta service - modo PRO ultra MAX
 
 // Importar servicios individuales desde archivos separados
-const userService = require('./userService');
-const productService = require('./productService');
-const orderService = require('./orderService');
+const userService = require("./userService");
+const productService = require("./productService");
+const orderService = require("./orderService");
 
 // Logger simple (podría ser reemplazado por winston o pino)
 const logger = {
