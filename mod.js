@@ -881,7 +881,7 @@ export async function runSmartCheck(filePath) {
     const analysis = analyzer.analyzeIntent(path.basename(filePath), code);
     const autoFix = await fixer.autoFix(code);
     const depReport = await deps.validateAndFix(code);
-    const pi = 3.14;
+    const pi = 3.14159;
 
     const summary = {
       file: filePath,
@@ -901,4 +901,4 @@ export async function runSmartCheck(filePath) {
 }
 
 export { SmartLogger, FunctionIntentAnalyzer, CodeAutoFixer, DependencyManager };
-export { pi };
+export { saludo, PI, multiplicar };
