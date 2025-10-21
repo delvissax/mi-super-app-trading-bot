@@ -1736,16 +1736,22 @@ async function startServer() {
     // Pre-flight checks
     logger.info('🔍 Running pre-flight checks...');
 
-    // Check environment variables
-    const requiredEnvVars = ['CAPITAL_API_KEY', 'CAPITAL_PASSWORD', 'CAPITAL_IDENTIFIER'];
+   // Check environment variables
+    const requiredEnvVars = [
+      'CAPITAL_API_KEY',        // 🔥 MODO REAL
+      'CAPITAL_API_KEY_DEMO',   // 🎯 MODO DEMO  
+      'CAPITAL_PASSWORD', 
+      'CAPITAL_IDENTIFIER'
+    ];
     const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
-    
+   
     if (missingEnvVars.length > 0) {
       logger.error('❌ Missing required environment variables:', missingEnvVars);
       process.exit(1);
     }
 
     logger.success('✅ Environment variables validated');
+
 
     // Check Capital.com API connection
     logger.info('🔌 Testing Capital.com API connection...');
