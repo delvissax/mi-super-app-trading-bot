@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import saludo, { PI, multiplicar } from './mod.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -880,6 +881,7 @@ export async function runSmartCheck(filePath) {
     const analysis = analyzer.analyzeIntent(path.basename(filePath), code);
     const autoFix = await fixer.autoFix(code);
     const depReport = await deps.validateAndFix(code);
+    const pi = 3.14;
 
     const summary = {
       file: filePath,
@@ -899,3 +901,4 @@ export async function runSmartCheck(filePath) {
 }
 
 export { SmartLogger, FunctionIntentAnalyzer, CodeAutoFixer, DependencyManager };
+export { pi };
