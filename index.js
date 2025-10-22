@@ -1737,12 +1737,19 @@ async function startServer() {
     logger.info('🔍 Running pre-flight checks...');
 
    // Check environment variables
-    const requiredEnvVars = [
-      'CAPITAL_API_KEY',        // 🔥 MODO REAL
-      'CAPITAL_API_KEY_DEMO',   // 🎯 MODO DEMO  
-      'CAPITAL_PASSWORD', 
-      'CAPITAL_IDENTIFIER'
-    ];
+   const requiredEnvVars = [
+  // 🔥 MODO REAL
+  'CAPITAL_API_KEY_REAL',           // API Key Real
+  'CAPITAL_API_SECRET_REAL',        // Secret/Password Real
+  'CAPITAL_USERNAME_REAL',          // Username Real
+  
+  // 🎯 MODO DEMO  
+  'CAPITAL_API_KEY_DEMO',           // API Key Demo
+  'CAPITAL_API_SECRET_DEMO',        // Secret/Password Demo
+  'CAPITAL_USERNAME_DEMO',          // Username Demo
+];
+
+
     const missingEnvVars = requiredEnvVars.filter(v => !process.env[v]);
    
     if (missingEnvVars.length > 0) {
