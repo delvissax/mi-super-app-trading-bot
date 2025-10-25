@@ -1,5 +1,15 @@
 // mod.js - ULTRA MÓDULO LETAL CON IA 🔥🧠 - VERSIÓN CORREGIDA
 // Sistema avanzado con análisis semántico, auto-corrección y validación inteligente
+// ===========================================================
+// 🧩 DEPENDENCIAS DEL SISTEMA - mod.js
+// ===========================================================
+
+import fs from 'fs';
+import path from 'path';
+
+// ===========================================================
+// 🧠 FIN DE IMPORTACIONES DEL SISTEMA
+// ===========================================================
 
 // ===========================================================
 // 🎯 CONSTANTES Y CONFIGURACIÓN PRINCIPAL
@@ -12,23 +22,23 @@ export const multiplicar = (a, b) => {
   if (typeof a !== 'number' || typeof b !== 'number') {
     throw new Error('❌ multiplicar: Ambos parámetros deben ser números');
   }
-  
+
   if (!isFinite(a) || !isFinite(b)) {
     throw new Error('❌ multiplicar: Los números deben ser finitos');
   }
-  
+
   const resultado = a * b;
-  
+
   // Verificar overflow
   if (!isFinite(resultado)) {
     throw new Error('❌ multiplicar: Overflow en multiplicación');
   }
-  
+
   return resultado;
 };
 
 const saludo = () => {
-  return "🚀 Trading Bot Ultra Pro Max - ¡Sistemas operativos!";
+  return '🚀 Trading Bot Ultra Pro Max - ¡Sistemas operativos!';
 };
 
 // ===========================================================
@@ -37,14 +47,14 @@ const saludo = () => {
 class SmartLogger {
   constructor() {
     this.colors = {
-      reset: "\x1b[0m",
-      bright: "\x1b[1m",
-      red: "\x1b[31m",
-      green: "\x1b[32m",
-      yellow: "\x1b[33m",
-      blue: "\x1b[36m",
-      magenta: "\x1b[35m",
-      dim: "\x1b[2m",
+      reset: '\x1b[0m',
+      bright: '\x1b[1m',
+      red: '\x1b[31m',
+      green: '\x1b[32m',
+      yellow: '\x1b[33m',
+      blue: '\x1b[36m',
+      magenta: '\x1b[35m',
+      dim: '\x1b[2m',
     };
     this.history = [];
     this.maxHistory = 1000;
@@ -52,7 +62,9 @@ class SmartLogger {
   }
 
   log(level, message, data = null) {
-    if (!this.enabled) return;
+    if (!this.enabled) {
+      return;
+    }
 
     const timestamp = new Date().toISOString();
     const entry = { timestamp, level, message, data };
@@ -85,38 +97,38 @@ class SmartLogger {
 
   getIconForLevel(level) {
     const map = {
-      info: "ℹ️",
-      success: "✅",
-      warn: "⚠️",
-      error: "❌",
-      debug: "🔍",
-      trade: "📈",
+      info: 'ℹ️',
+      success: '✅',
+      warn: '⚠️',
+      error: '❌',
+      debug: '🔍',
+      trade: '📈',
     };
-    return map[level] || "📝";
+    return map[level] || '📝';
   }
 
   info(msg, data) {
-    this.log("info", msg, data);
+    this.log('info', msg, data);
   }
-  
+
   success(msg, data) {
-    this.log("success", msg, data);
+    this.log('success', msg, data);
   }
-  
+
   warn(msg, data) {
-    this.log("warn", msg, data);
+    this.log('warn', msg, data);
   }
-  
+
   error(msg, data) {
-    this.log("error", msg, data);
+    this.log('error', msg, data);
   }
-  
+
   debug(msg, data) {
-    this.log("debug", msg, data);
+    this.log('debug', msg, data);
   }
-  
+
   trade(msg, data) {
-    this.log("trade", msg, data);
+    this.log('trade', msg, data);
   }
 
   getHistory() {
@@ -208,7 +220,7 @@ class FunctionIntentAnalyzer {
 
       return {
         name: funcName,
-        primaryIntent: intentions[0] || "unknown",
+        primaryIntent: intentions[0] || 'unknown',
         allIntents: intentions,
         confidence,
         complexity,
@@ -219,12 +231,12 @@ class FunctionIntentAnalyzer {
     } catch (error) {
       return {
         name: funcName,
-        primaryIntent: "analysis_error",
+        primaryIntent: 'analysis_error',
         allIntents: [],
         confidence: {},
-        complexity: { score: 0, level: "unknown", maxNesting: 0 },
+        complexity: { score: 0, level: 'unknown', maxNesting: 0 },
         features: {},
-        recommendation: ["Error en análisis: " + error.message],
+        recommendation: ['Error en análisis: ' + error.message],
         error: error.message,
       };
     }
@@ -235,7 +247,7 @@ class FunctionIntentAnalyzer {
       let score = 1;
 
       for (const [keyword, weight] of Object.entries(this.complexityWeights)) {
-        const pattern = new RegExp(`\\b${keyword}\\b`, "gi");
+        const pattern = new RegExp(`\\b${keyword}\\b`, 'gi');
         const matches = code.match(pattern) || [];
         score += matches.length * weight;
       }
@@ -245,17 +257,17 @@ class FunctionIntentAnalyzer {
 
       let level, recommendation;
       if (score <= 5) {
-        level = "low";
-        recommendation = "Complejidad aceptable";
+        level = 'low';
+        recommendation = 'Complejidad aceptable';
       } else if (score <= 15) {
-        level = "medium";
-        recommendation = "Considerar refactorización si crece";
+        level = 'medium';
+        recommendation = 'Considerar refactorización si crece';
       } else if (score <= 30) {
-        level = "high";
-        recommendation = "Recomendado refactorizar en funciones más pequeñas";
+        level = 'high';
+        recommendation = 'Recomendado refactorizar en funciones más pequeñas';
       } else {
-        level = "critical";
-        recommendation = "⚠️ Refactorización urgente requerida";
+        level = 'critical';
+        recommendation = '⚠️ Refactorización urgente requerida';
       }
 
       return {
@@ -267,14 +279,14 @@ class FunctionIntentAnalyzer {
           conditionals: (code.match(/\bif\b/gi) || []).length,
           loops: (code.match(/(?:for|while|forEach)/gi) || []).length,
           tryBlocks: (code.match(/try\s*{/gi) || []).length,
-        }
+        },
       };
     } catch (error) {
       return {
         score: 0,
-        level: "error",
+        level: 'error',
         maxNesting: 0,
-        recommendation: "Error calculando complejidad",
+        recommendation: 'Error calculando complejidad',
         error: error.message,
       };
     }
@@ -286,10 +298,12 @@ class FunctionIntentAnalyzer {
       let max = 0;
 
       for (const char of code) {
-        if (char === "{") {
+        if (char === '{') {
           current++;
-          if (current > max) max = current;
-        } else if (char === "}") {
+          if (current > max) {
+            max = current;
+          }
+        } else if (char === '}') {
           current--;
         }
       }
@@ -322,7 +336,7 @@ class FunctionIntentAnalyzer {
       }
 
       // Detectar uso de globals
-      const globalPatterns = ["console", "process", "global", "window", "document", "localStorage"];
+      const globalPatterns = ['console', 'process', 'global', 'window', 'document', 'localStorage'];
       for (const global of globalPatterns) {
         if (new RegExp(`\\b${global}\\b`).test(code)) {
           deps.global.push(global);
@@ -365,34 +379,37 @@ class FunctionIntentAnalyzer {
     const recommendations = [];
 
     // Complejidad
-    if (complexity.level === "high") {
-      recommendations.push("🔴 Alta complejidad: considerar refactorizar en funciones más pequeñas");
-    } else if (complexity.level === "critical") {
-      recommendations.push("🚨 Complejidad crítica: refactorización urgente requerida");
+    if (complexity.level === 'high') {
+      recommendations.push(
+        '🔴 Alta complejidad: considerar refactorizar en funciones más pequeñas',
+      );
+    } else if (complexity.level === 'critical') {
+      recommendations.push('🚨 Complejidad crítica: refactorización urgente requerida');
     }
 
     // Async sin error handling
     if (features.isAsync && !features.hasErrorHandling) {
-      recommendations.push("🟡 Función async sin try-catch: agregar manejo de errores");
+      recommendations.push('🟡 Función async sin try-catch: agregar manejo de errores');
     }
 
     // Side effects sin documentar
-    if (features.hasSideEffects.length > 0 && !intentions.includes("utility")) {
-      recommendations.push(`🟡 Tiene side effects: ${features.hasSideEffects.join(", ")}`);
+    if (features.hasSideEffects.length > 0 && !intentions.includes('utility')) {
+      recommendations.push(`🟡 Tiene side effects: ${features.hasSideEffects.join(', ')}`);
     }
 
     // Promise sin await
     if (features.returnsPromise && !features.isAsync) {
-      recommendations.push("💡 Retorna Promise pero no es async: considerar usar async/await");
+      recommendations.push('💡 Retorna Promise pero no es async: considerar usar async/await');
     }
 
     // Recursión sin base case check
-    if (features.hasRecursion && !code.includes('if') && !code.includes('base case')) {
-      recommendations.push("⚠️ Función recursiva: verificar caso base");
-    }
+    if (features.hasRecursion && !features.codeIncludesConditional && !features.hasBaseCase) {
+  recommendations.push('⚠️ Función recursiva: verificar caso base');
+} 
+
 
     if (recommendations.length === 0) {
-      recommendations.push("✅ Función bien estructurada y mantenible");
+      recommendations.push('✅ Función bien estructurada y mantenible');
     }
 
     return recommendations;
@@ -487,9 +504,9 @@ class CodeAutoFixer {
   }
 
   fixWebSocketIssues(code) {
-    let fixedCode = code;
+    const fixedCode = code;
     const fixes = [];
-    let modified = false;
+    const modified = false;
 
     try {
       // Agregar verificación de readyState antes de send
@@ -503,19 +520,24 @@ class CodeAutoFixer {
         // Verificar si ya tiene check
         const contextBefore = code.substring(Math.max(0, index - 200), index);
 
-        if (!contextBefore.includes(`${varName}.readyState`) && !contextBefore.includes("readyState === 1")) {
+        if (
+          !contextBefore.includes(`${varName}.readyState`) &&
+          !contextBefore.includes('readyState === 1')
+        ) {
           const lineNumber = code.substring(0, index).split('\n').length;
-          
+
           fixes.push({
-            type: "websocket_readystate_check",
+            type: 'websocket_readystate_check',
             description: `Agregar verificación de readyState para ${varName}.send()`,
             line: lineNumber,
-            severity: "medium",
+            severity: 'medium',
             automatic: false,
-            suggestion: `if (${varName}.readyState === 1) { ${varName}.send(...) }`
+            suggestion: `if (${varName}.readyState === 1) { ${varName}.send(...) }`,
           });
 
-          this.logger.warn(`⚠️ Línea ${lineNumber}: WebSocket.send() sin verificación de readyState`);
+          this.logger.warn(
+            `⚠️ Línea ${lineNumber}: WebSocket.send() sin verificación de readyState`,
+          );
         }
       }
 
@@ -539,7 +561,7 @@ class CodeAutoFixer {
       while ((match = awaitPattern.exec(code)) !== null) {
         const awaitExpr = match[1];
         const index = match.index;
-        const line = code.substring(0, index).split("\n").length;
+        const line = code.substring(0, index).split('\n').length;
 
         // Verificar si ya está en try-catch
         const contextBefore = code.substring(Math.max(0, index - 500), index);
@@ -547,12 +569,12 @@ class CodeAutoFixer {
 
         if (!hasTryCatch) {
           fixes.push({
-            type: "async_try_catch_wrap",
-            description: `Await sin try-catch detectado`,
+            type: 'async_try_catch_wrap',
+            description: 'Await sin try-catch detectado',
             line,
-            severity: "medium",
+            severity: 'medium',
             automatic: false,
-            suggestion: `try { ${awaitExpr} } catch (error) { logger.error('Error:', error); }`
+            suggestion: `try { ${awaitExpr} } catch (error) { logger.error('Error:', error); }`,
           });
 
           this.logger.warn(`⚠️ Línea ${line}: await sin try-catch detectado`);
@@ -566,18 +588,18 @@ class CodeAutoFixer {
         const funcName = match[1];
         const funcBody = match[2];
 
-        if (!funcBody.includes("await") && !funcBody.includes("Promise")) {
+        if (!funcBody.includes('await') && !funcBody.includes('Promise')) {
           fixes.push({
-            type: "remove_unnecessary_async",
+            type: 'remove_unnecessary_async',
             description: `Función ${funcName} marcada como async innecesariamente`,
-            line: code.substring(0, match.index).split("\n").length,
-            severity: "low",
+            line: code.substring(0, match.index).split('\n').length,
+            severity: 'low',
             automatic: true,
           });
 
           fixedCode = fixedCode.replace(
             new RegExp(`async\\s+function\\s+${funcName}`),
-            `function ${funcName}`
+            `function ${funcName}`,
           );
 
           modified = true;
@@ -603,23 +625,23 @@ class CodeAutoFixer {
 
       while ((match = varPattern.exec(code)) !== null) {
         const varName = match[1];
-        const line = code.substring(0, match.index).split("\n").length;
+        const line = code.substring(0, match.index).split('\n').length;
 
-        const reassignPattern = new RegExp(`${varName}\\s*=`, "g");
+        const reassignPattern = new RegExp(`${varName}\\s*=`, 'g');
         const assignments = (code.match(reassignPattern) || []).length;
 
-        const replacement = assignments > 1 ? "let" : "const";
+        const replacement = assignments > 1 ? 'let' : 'const';
 
         fixedCode = fixedCode.replace(
           new RegExp(`\\bvar\\s+${varName}\\b`),
-          `${replacement} ${varName}`
+          `${replacement} ${varName}`,
         );
 
         fixes.push({
-          type: "modernize_variable_declaration",
+          type: 'modernize_variable_declaration',
           description: `Reemplazado 'var ${varName}' con '${replacement}'`,
           line,
-          severity: "low",
+          severity: 'low',
           automatic: true,
         });
 
@@ -643,19 +665,19 @@ class CodeAutoFixer {
 
       while ((match = promisePattern.exec(code)) !== null) {
         const index = match.index;
-        const line = code.substring(0, index).split("\n").length;
+        const line = code.substring(0, index).split('\n').length;
 
         // Buscar si tiene .catch después
         const contextAfter = code.substring(index, Math.min(code.length, index + 300));
 
-        if (!contextAfter.includes(".catch(")) {
+        if (!contextAfter.includes('.catch(')) {
           fixes.push({
-            type: "promise_add_catch",
-            description: `Promise sin .catch() detectado`,
+            type: 'promise_add_catch',
+            description: 'Promise sin .catch() detectado',
             line,
-            severity: "medium",
+            severity: 'medium',
             automatic: false,
-            suggestion: ".catch(error => { logger.error('Promise error:', error); })"
+            suggestion: ".catch(error => { logger.error('Promise error:', error); })",
           });
 
           this.logger.warn(`⚠️ Línea ${line}: Promise sin manejo de errores`);
@@ -678,11 +700,11 @@ class CodeAutoFixer {
 
       if (callbackHellPattern.test(code)) {
         fixes.push({
-          type: "suggest_async_refactor",
-          description: "Callback hell detectado - considerar refactorizar a async/await",
-          severity: "low",
+          type: 'suggest_async_refactor',
+          description: 'Callback hell detectado - considerar refactorizar a async/await',
+          severity: 'low',
           automatic: false,
-          suggestion: "Convertir cadena de .then() a async/await para mejor legibilidad"
+          suggestion: 'Convertir cadena de .then() a async/await para mejor legibilidad',
         });
       }
 
@@ -703,22 +725,25 @@ class CodeAutoFixer {
 
       while ((match = funcPattern.exec(code)) !== null) {
         const funcName = match[1];
-        const params = match[2].split(',').map(p => p.trim()).filter(p => p);
-        const line = code.substring(0, match.index).split("\n").length;
+        const params = match[2]
+          .split(',')
+          .map((p) => p.trim())
+          .filter((p) => p);
+        const line = code.substring(0, match.index).split('\n').length;
 
         // Verificar si tiene validaciones básicas
         const funcBody = code.substring(match.index, Math.min(code.length, match.index + 500));
-        
+
         const hasValidation = /if\s*\(.*===\s*undefined|if\s*\(!.*\)|typeof.*===/.test(funcBody);
 
         if (!hasValidation && params.length > 0) {
           fixes.push({
-            type: "add_parameter_validation",
+            type: 'add_parameter_validation',
             description: `Función ${funcName} sin validación de parámetros`,
             line,
-            severity: "low",
+            severity: 'low',
             automatic: false,
-            suggestion: `Agregar: if (!${params[0]}) throw new Error('Parámetro requerido');`
+            suggestion: `Agregar: if (!${params[0]}) throw new Error('Parámetro requerido');`,
           });
         }
       }
@@ -736,13 +761,13 @@ class CodeAutoFixer {
 // ===========================================================
 class DependencyManager {
   constructor() {
-    this.packageJsonPath = path.join(process.cwd(), "package.json");
-    this.nodeModulesPath = path.join(process.cwd(), "node_modules");
+    this.packageJsonPath = path.join(process.cwd(), 'package.json');
+    this.nodeModulesPath = path.join(process.cwd(), 'node_modules');
     this.logger = new SmartLogger();
   }
 
   async validateAndFix(code) {
-    this.logger.info("📦 Validando dependencias...");
+    this.logger.info('📦 Validando dependencias...');
 
     try {
       const imports = this.extractImports(code);
@@ -754,16 +779,16 @@ class DependencyManager {
 
       if (!packageJson) {
         issues.push({
-          type: "missing_package_json",
-          severity: "critical",
-          description: "package.json no encontrado",
+          type: 'missing_package_json',
+          severity: 'critical',
+          description: 'package.json no encontrado',
           fix: await this.createPackageJson(),
         });
       }
 
       // Verificar cada import
       for (const imp of imports) {
-        if (imp.type === "external") {
+        if (imp.type === 'external') {
           const check = await this.checkExternalDependency(imp, packageJson);
           if (!check.valid) {
             issues.push(check);
@@ -773,7 +798,7 @@ class DependencyManager {
               const fixed = await this.addDependency(imp.module, packageJson);
               if (fixed) {
                 fixes.push({
-                  type: "dependency_added",
+                  type: 'dependency_added',
                   module: imp.module,
                   description: `Agregado ${imp.module} a package.json`,
                   automatic: true,
@@ -781,7 +806,7 @@ class DependencyManager {
               }
             }
           }
-        } else if (imp.type === "local") {
+        } else if (imp.type === 'local') {
           const check = await this.checkLocalFile(imp);
           if (!check.valid) {
             issues.push(check);
@@ -789,7 +814,9 @@ class DependencyManager {
         }
       }
 
-      this.logger.success(`✅ Validación completada: ${imports.length} imports, ${issues.length} issues`);
+      this.logger.success(
+        `✅ Validación completada: ${imports.length} imports, ${issues.length} issues`,
+      );
 
       return {
         imports,
@@ -797,8 +824,8 @@ class DependencyManager {
         fixes,
         summary: {
           total: imports.length,
-          external: imports.filter((i) => i.type === "external").length,
-          local: imports.filter((i) => i.type === "local").length,
+          external: imports.filter((i) => i.type === 'external').length,
+          local: imports.filter((i) => i.type === 'local').length,
           issues: issues.length,
           fixesApplied: fixes.length,
         },
@@ -808,7 +835,7 @@ class DependencyManager {
       this.logger.error(`❌ Error en validación de dependencias: ${error.message}`);
       return {
         imports: [],
-        issues: [{ type: "validation_error", severity: "critical", description: error.message }],
+        issues: [{ type: 'validation_error', severity: 'critical', description: error.message }],
         fixes: [],
         summary: { total: 0, external: 0, local: 0, issues: 1, fixesApplied: 0 },
         healthy: false,
@@ -831,11 +858,11 @@ class DependencyManager {
         const modulePath = match[3];
 
         imports.push({
-          type: modulePath.startsWith(".") ? "local" : "external",
-          module: modulePath.split("/")[0],
+          type: modulePath.startsWith('.') ? 'local' : 'external',
+          module: modulePath.split('/')[0],
           path: modulePath,
-          imports: named ? named.split(",").map((s) => s.trim()) : [defaultImport],
-          line: code.substring(0, match.index).split("\n").length,
+          imports: named ? named.split(',').map((s) => s.trim()) : [defaultImport],
+          line: code.substring(0, match.index).split('\n').length,
           raw: match[0],
         });
       }
@@ -850,11 +877,11 @@ class DependencyManager {
         const modulePath = match[3];
 
         imports.push({
-          type: modulePath.startsWith(".") ? "local" : "external",
-          module: modulePath.split("/")[0],
+          type: modulePath.startsWith('.') ? 'local' : 'external',
+          module: modulePath.split('/')[0],
           path: modulePath,
-          imports: named ? named.split(",").map((s) => s.trim()) : [defaultImport],
-          line: code.substring(0, match.index).split("\n").length,
+          imports: named ? named.split(',').map((s) => s.trim()) : [defaultImport],
+          line: code.substring(0, match.index).split('\n').length,
           raw: match[0],
         });
       }
@@ -872,10 +899,10 @@ class DependencyManager {
         return null;
       }
 
-      const content = fs.readFileSync(this.packageJsonPath, "utf8");
+      const content = fs.readFileSync(this.packageJsonPath, 'utf8');
       return JSON.parse(content);
     } catch (error) {
-      this.logger.error("Error leyendo package.json:", error.message);
+      this.logger.error('Error leyendo package.json:', error.message);
       return null;
     }
   }
@@ -885,7 +912,18 @@ class DependencyManager {
 
     try {
       // Check si es módulo nativo de Node
-      const builtins = ["fs", "path", "http", "https", "crypto", "os", "util", "stream", "events", "url"];
+      const builtins = [
+        'fs',
+        'path',
+        'http',
+        'https',
+        'crypto',
+        'os',
+        'util',
+        'stream',
+        'events',
+        'url',
+      ];
       if (builtins.includes(moduleName)) {
         return { valid: true, builtin: true };
       }
@@ -893,8 +931,8 @@ class DependencyManager {
       if (!packageJson) {
         return {
           valid: false,
-          type: "missing_in_package_json",
-          severity: "high",
+          type: 'missing_in_package_json',
+          severity: 'high',
           module: moduleName,
           description: `Módulo '${moduleName}' no está en package.json`,
           fix: `npm install ${moduleName}`,
@@ -909,8 +947,8 @@ class DependencyManager {
       if (!allDeps[moduleName]) {
         return {
           valid: false,
-          type: "missing_dependency",
-          severity: "critical",
+          type: 'missing_dependency',
+          severity: 'critical',
           module: moduleName,
           line: imp.line,
           description: `Módulo '${moduleName}' importado pero no instalado`,
@@ -923,11 +961,11 @@ class DependencyManager {
       if (!fs.existsSync(modulePath)) {
         return {
           valid: false,
-          type: "not_installed",
-          severity: "high",
+          type: 'not_installed',
+          severity: 'high',
           module: moduleName,
           description: `Módulo '${moduleName}' en package.json pero no instalado`,
-          fix: "npm install",
+          fix: 'npm install',
         };
       }
 
@@ -935,8 +973,8 @@ class DependencyManager {
     } catch (error) {
       return {
         valid: false,
-        type: "check_error",
-        severity: "high",
+        type: 'check_error',
+        severity: 'high',
         module: moduleName,
         description: `Error verificando dependencia: ${error.message}`,
       };
@@ -948,7 +986,7 @@ class DependencyManager {
       const filePath = path.resolve(process.cwd(), imp.path);
 
       // Probar con diferentes extensiones
-      const extensions = ["", ".js", ".mjs", ".json", "/index.js"];
+      const extensions = ['', '.js', '.mjs', '.json', '/index.js'];
 
       for (const ext of extensions) {
         if (fs.existsSync(filePath + ext)) {
@@ -958,18 +996,18 @@ class DependencyManager {
 
       return {
         valid: false,
-        type: "missing_local_file",
-        severity: "critical",
+        type: 'missing_local_file',
+        severity: 'critical',
         path: imp.path,
         line: imp.line,
         description: `Archivo local '${imp.path}' no encontrado`,
-        fix: `Crear archivo o corregir path`,
+        fix: 'Crear archivo o corregir path',
       };
     } catch (error) {
       return {
         valid: false,
-        type: "check_error",
-        severity: "high",
+        type: 'check_error',
+        severity: 'high',
         path: imp.path,
         description: `Error verificando archivo local: ${error.message}`,
       };
@@ -983,9 +1021,9 @@ class DependencyManager {
       }
 
       // Usar versión estable en lugar de 'latest'
-      packageJson.dependencies[moduleName] = "^1.0.0";
+      packageJson.dependencies[moduleName] = '^1.0.0';
 
-      fs.writeFileSync(this.packageJsonPath, JSON.stringify(packageJson, null, 2), "utf8");
+      fs.writeFileSync(this.packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
 
       this.logger.success(`✅ Agregado ${moduleName} a package.json`);
       return true;
@@ -997,30 +1035,30 @@ class DependencyManager {
 
   async createPackageJson() {
     const template = {
-      name: "trading-bot-ultra-pro",
-      version: "1.0.0",
-      description: "Trading Bot Ultra Pro Max - Auto-generated by Ultra Module Letal",
-      main: "index.js",
-      type: "module",
+      name: 'trading-bot-ultra-pro',
+      version: '1.0.0',
+      description: 'Trading Bot Ultra Pro Max - Auto-generated by Ultra Module Letal',
+      main: 'index.js',
+      type: 'module',
       scripts: {
-        start: "node index.js",
-        dev: "node --watch index.js",
+        start: 'node index.js',
+        dev: 'node --watch index.js',
         test: 'echo "No tests specified" && exit 0',
-        build: 'echo "No build step" && exit 0'
+        build: 'echo "No build step" && exit 0',
       },
-      keywords: ["trading", "bot", "crypto", "forex"],
-      author: "Trading Bot Team",
-      license: "MIT",
+      keywords: ['trading', 'bot', 'crypto', 'forex'],
+      author: 'Trading Bot Team',
+      license: 'MIT',
       dependencies: {},
       devDependencies: {},
       engines: {
-        node: ">=18.0.0"
-      }
+        node: '>=18.0.0',
+      },
     };
 
     try {
-      fs.writeFileSync(this.packageJsonPath, JSON.stringify(template, null, 2), "utf8");
-      this.logger.success("✅ package.json creado automáticamente");
+      fs.writeFileSync(this.packageJsonPath, JSON.stringify(template, null, 2), 'utf8');
+      this.logger.success('✅ package.json creado automáticamente');
       return true;
     } catch (error) {
       this.logger.error(`Error creando package.json: ${error.message}`);
@@ -1040,11 +1078,11 @@ class DependencyManager {
  */
 export async function runSmartCheck(filePath) {
   const logger = new SmartLogger();
-  
+
   logger.info(`🚀 Iniciando análisis inteligente del módulo: ${filePath}`);
 
   try {
-    const code = fs.readFileSync(filePath, "utf8");
+    const code = fs.readFileSync(filePath, 'utf8');
     const analyzer = new FunctionIntentAnalyzer();
     const fixer = new CodeAutoFixer();
     const deps = new DependencyManager();
@@ -1064,25 +1102,25 @@ export async function runSmartCheck(filePath) {
       timestamp: new Date().toISOString(),
     };
 
-    logger.success(`🧩 Análisis completado:`, summary);
-    
-    return { 
-      analysis, 
-      autoFix, 
-      depReport, 
+    logger.success('🧩 Análisis completado:', summary);
+
+    return {
+      analysis,
+      autoFix,
+      depReport,
       summary,
       recommendations: [
         ...analysis.recommendation,
-        ...autoFix.appliedFixes.map(f => f.description),
-        ...depReport.issues.map(i => i.description)
-      ]
+        ...autoFix.appliedFixes.map((f) => f.description),
+        ...depReport.issues.map((i) => i.description),
+      ],
     };
   } catch (error) {
     logger.error(`❌ Error en runSmartCheck: ${error.message}`);
-    return { 
+    return {
       error: error.message,
       healthy: false,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 }
@@ -1101,10 +1139,10 @@ export function getSystemHealth() {
       analyzer: true,
       autoFixer: true,
       dependencyManager: true,
-      logger: true
+      logger: true,
     },
     memory: process.memoryUsage(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
   };
 }
 
@@ -1112,11 +1150,6 @@ export function getSystemHealth() {
 // 📦 EXPORTACIONES PRINCIPALES
 // ===========================================================
 
-export { 
-  SmartLogger, 
-  FunctionIntentAnalyzer, 
-  CodeAutoFixer, 
-  DependencyManager 
-};
+export { SmartLogger, FunctionIntentAnalyzer, CodeAutoFixer, DependencyManager };
 
 export default saludo;

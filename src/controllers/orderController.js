@@ -27,7 +27,7 @@ export async function createOrder(req, res) {
 
     if (result.success) {
       logger(levels.INFO, 'Orden creada exitosamente');
-      return res.status(201).json({ success: true,  result.data });
+      return res.status(201).json({ success: true, data: result.data });
     }
 
     logger(levels.WARN, 'Error creando orden', result.error);
@@ -56,7 +56,7 @@ export async function cancelOrder(req, res) {
 
     if (result.success) {
       logger(levels.INFO, `Orden cancelada correctamente dealId: ${dealId}`);
-      return res.status(200).json({ success: true,  result.data });
+      return res.status(200).json({ success: true, data:  result.data });
     }
 
     logger(levels.WARN, `Error cancelando orden dealId: ${dealId}`, result.error);

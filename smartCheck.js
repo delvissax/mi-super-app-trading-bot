@@ -1,6 +1,7 @@
-import fs from "fs/promises";
-import path from "path";
-import { SmartLogger, FunctionIntentAnalyzer, CodeAutoFixer, DependencyManager } from "./mod.js";
+import fs from 'fs/promises';
+import path from 'path';
+
+import { SmartLogger, FunctionIntentAnalyzer, CodeAutoFixer, DependencyManager } from './mod.js';
 
 const logger = new SmartLogger();
 
@@ -9,16 +10,18 @@ async function retryAsync(fn, attempts = 3, delay = 500) {
   try {
     return await fn();
   } catch (err) {
-    if (attempts <= 1) throw err;
+    if (attempts <= 1) {
+      throw err;
+    }
     await new Promise((res) => setTimeout(res, delay));
     return retryAsync(fn, attempts - 1, delay * 2);
   }
 }
 
 export async function runSmartCheck(filePath) {
-  if (typeof filePath !== "string" || filePath.trim() === "") {
-    logger.error("🚫 Parámetro inválido para filePath.");
-    return { error: "Invalid filePath parameter" };
+  if (typeof filePath !== 'string' || filePath.trim() === '') {
+    logger.error('🚫 Parámetro inválido para filePath.');
+    return { error: 'Invalid filePath parameter' };
   }
 
   logger.info(`🚀 Iniciando análisis inteligente del módulo: ${filePath}`);
@@ -32,10 +35,10 @@ export async function runSmartCheck(filePath) {
     return { error: msg };
   }
 
-  let code = "";
+  let code = '';
   // Leer archivo con reintentos
   try {
-    code = await retryAsync(() => fs.readFile(filePath, "utf8"), 3, 1000);
+    code = await retryAsync(() => fs.readFile(filePath, 'utf8'), 3, 1000);
   } catch (readError) {
     logger.error(`Error leyendo archivo: ${readError.message}`);
     return { error: `Error reading file: ${readError.message}` };
@@ -52,7 +55,7 @@ export async function runSmartCheck(filePath) {
     analysis = await retryAsync(
       () => Promise.resolve(analyzer.analyzeIntent(path.basename(filePath), code)),
       3,
-      1000
+      1000,
     );
   } catch (err) {
     logger.error(`Error en análisis: ${err.message}`);
@@ -77,8 +80,8 @@ export async function runSmartCheck(filePath) {
 
   const summary = {
     file: filePath,
-    intent: analysis?.primaryIntent || "Desconocido",
-    complexity: analysis?.complexity?.level || "Desconocido",
+    intent: analysis?.primaryIntent || 'Desconocido',
+    complexity: analysis?.complexity?.level || 'Desconocido',
     sideEffects: analysis?.features?.hasSideEffects || false,
     fixesApplied: autoFix?.appliedFixes?.length || 0,
     depIssues: depReport?.issues?.length || 0,
@@ -92,6 +95,6 @@ export async function runSmartCheck(filePath) {
 // Ejecución rápida con argumento CLI
 if (process.argv[2]) {
   runSmartCheck(process.argv[2])
-    .then(() => logger.info("✅ Ejecución finalizada"))
+    .then(() => logger.info('✅ Ejecución finalizada'))
     .catch((err) => logger.error(`Error inesperado: ${err.message}`));
 }

@@ -38,7 +38,7 @@ export async function executeTrade(req, res) {
     }
 
     logger(levels.INFO, 'Trade ejecutado con éxito');
-    return res.status(200).json({ success: true,  result.data });
+    return res.status(200).json({ success: true, data: result.data });
   } catch (error) {
     logger(levels.ERROR, 'Excepción en executeTrade', error);
     return res.status(500).json({ success: false, error: 'Error interno del servidor.' });
@@ -50,13 +50,14 @@ export async function executeTrade(req, res) {
  */
 export async function getPositions(req, res) {
   const mode = req.query.mode || 'demo';
-  // Implementar llamada a capitalService si disponible para posiciones
-  logger(levels.INFO, `Solicitud de posiciones modo=${mode}`);
+ 
+// Implementar llamada a capitalService si disponible para posiciones
+logger(levels.INFO, `Solicitud de posiciones modo=${mode}`);
 
-  // Placeholder para expandir según API disponible
-  return res.json({
-    success: true,
-     [],
-    message: 'Funcionalidad pendiente de implementación para obtener posiciones.',
-  });
+// Placeholder para expandir según API disponible
+return res.json({
+  success: true,
+  positions: [],
+  message: 'Funcionalidad pendiente de implementación para obtener posiciones.',
+});
 }

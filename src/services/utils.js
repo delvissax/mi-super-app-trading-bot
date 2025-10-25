@@ -1,6 +1,6 @@
 // utils.js - modo PRO ultra MAX
 
-const crypto = require("crypto");
+const crypto = require('crypto');
 
 // Logger util configurable
 const logger = {
@@ -22,7 +22,7 @@ const isValidEmail = (email) => {
 
 // Helper para formatear fechas a ISO legible truncando milisegundos
 const formatDate = (date = new Date()) => {
-  return date.toISOString().replace(/\.\d{3}Z$/, "Z");
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 };
 
 // Función para manejar promesas con try/catch y devolver [error, data]

@@ -32,7 +32,7 @@ export async function registerUser(req, res) {
     return res.status(400).json({ success: false, error: msg });
   }
 
-  const existingUser = usersDB.find(u => u.username === username || u.email === email);
+  const existingUser = usersDB.find((u) => u.username === username || u.email === email);
   if (existingUser) {
     const msg = 'Usuario o email ya registrado.';
     logger(levels.WARN, msg);
@@ -51,7 +51,10 @@ export async function registerUser(req, res) {
     usersDB.push(newUser);
 
     logger(levels.INFO, `Usuario registrado exitosamente: ${username}`);
-    return res.status(201).json({ success: true,  { id: newUser.id, username, email } });
+    return res.status(201).json({
+      success: true,
+      user: { id: newUser.id, username, email },
+    });
   } catch (error) {
     logger(levels.ERROR, 'Error registrando usuario', error);
     return res.status(500).json({ success: false, error: 'Error interno del servidor.' });
@@ -72,7 +75,7 @@ export async function getUserProfile(req, res) {
     return res.status(400).json({ success: false, error: msg });
   }
 
-  const user = usersDB.find(u => u.id === userId);
+  const user = usersDB.find((u) => u.id === userId);
   if (!user) {
     const msg = 'Usuario no encontrado.';
     logger(levels.WARN, msg);
@@ -81,12 +84,12 @@ export async function getUserProfile(req, res) {
 
   return res.status(200).json({
     success: true,
-     {
+    user: {
       id: user.id,
       username: user.username,
       email: user.email,
-      createdAt: user.createdAt
-    }
+      createdAt: user.createdAt,
+    },
   });
 }
 
@@ -105,7 +108,7 @@ export async function updateUserEmail(req, res) {
     return res.status(400).json({ success: false, error: msg });
   }
 
-  const user = usersDB.find(u => u.id === userId);
+  const user = usersDB.find((u) => u.id === userId);
   if (!user) {
     const msg = 'Usuario no encontrado.';
     logger(levels.WARN, msg);
@@ -114,5 +117,37 @@ export async function updateUserEmail(req, res) {
 
   user.email = email;
   logger(levels.INFO, `Email de usuario id=${userId} actualizado a ${email}`);
-  return res.status(200).json({ success: true,  { id: user.id, username: user.username, email } });
+  return res.status(200).json({
+    success: true,
+    user: { id: user.id, username: user.username, email },
+  });
+}
+
+/**
+ * Eliminar usuario
+ */
+export async function deleteUser(req, res) {
+  const userId = parseInt(req.params.id);
+
+  logger(levels.INFO, `Intentando eliminar usuario id=${userId}`);
+
+  if (isNaN(userId)) {
+    const msg = 'ID de usuario inválido.';
+    logger(levels.WARN, msg);
+    return res.status(400).json({ success: false, error: msg });
+  }
+
+  const userIndex = usersDB.findIndex((u) => u.id === userId);
+  if (userIndex === -1) {
+    const msg = 'Usuario no encontrado.';
+    logger(levels.WARN, msg);
+    return res.status(404).json({ success: false, error: msg });
+  }
+
+  usersDB.splice(userIndex, 1);
+  logger(levels.INFO, `Usuario id=${userId} eliminado exitosamente`);
+  return res.status(200).json({
+    success: true,
+    message: 'Usuario eliminado correctamente',
+  });
 }

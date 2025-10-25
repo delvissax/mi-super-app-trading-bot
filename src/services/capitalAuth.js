@@ -1,4 +1,4 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 dotenv.config();
 
 /**
@@ -10,11 +10,11 @@ export function getAuthHeaders(isDemo = true) {
   const apiKey = isDemo ? process.env.CAPITAL_API_KEY_DEMO : process.env.CAPITAL_API_KEY_REAL;
 
   if (!apiKey) {
-    throw new Error(`API Key ${isDemo ? "DEMO" : "REAL"} no encontrada en .env`);
+    throw new Error(`API Key ${isDemo ? 'DEMO' : 'REAL'} no encontrada en .env`);
   }
 
   return {
     Authorization: `Bearer ${apiKey}`,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 }

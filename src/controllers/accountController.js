@@ -42,7 +42,7 @@ export async function getAccountInfo(req, res) {
     }
 
     logger(levels.INFO, 'Información de cuenta obtenida exitosamente.');
-    return res.status(200).json({ success: true,  result.data });
+    return res.status(200).json({ success: true, data: result.data });
   } catch (error) {
     logger(levels.ERROR, 'Excepción inesperada en getAccountInfo', error);
     return res.status(500).json({ success: false, error: 'Error interno del servidor.' });

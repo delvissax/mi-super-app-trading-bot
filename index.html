@@ -1,627 +1,641 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Corrector de Scripts Automático - Pro</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --primary-dark: #1d4ed8;
-            --success-color: #10b981;
-            --success-dark: #059669;
-            --warning-color: #f59e0b;
-            --warning-dark: #d97706;
-            --error-color: #ef4444;
-            --error-dark: #dc2626;
-            --info-color: #3b82f6;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --text-light: #64748b;
-            --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
+      :root {
+        --primary-color: #2563eb;
+        --primary-dark: #1d4ed8;
+        --success-color: #10b981;
+        --success-dark: #059669;
+        --warning-color: #f59e0b;
+        --warning-dark: #d97706;
+        --error-color: #ef4444;
+        --error-dark: #dc2626;
+        --info-color: #3b82f6;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --text-color: #1e293b;
+        --text-light: #64748b;
+        --border-color: #e2e8f0;
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            font-size: 1rem;
-        }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        font-size: 1rem;
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1.25rem;
-        }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.25rem;
+      }
 
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 2rem 1rem;
-            background: var(--card-bg);
-            border-radius: 0.625rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-        }
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem 1rem;
+        background: var(--card-bg);
+        border-radius: 0.625rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+      }
 
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-            font-size: 2.25rem;
-        }
+      h1 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-size: 2.25rem;
+      }
 
-        .subtitle {
-            color: var(--text-light);
-            font-size: 1.125rem;
-        }
+      .subtitle {
+        color: var(--text-light);
+        font-size: 1.125rem;
+      }
 
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 768px) {
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 0.625rem;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .language-selector {
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.3125rem;
-            background: var(--card-bg);
-            color: var(--text-color);
-            font-size: 0.875rem;
-        }
-
-        .code-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .code-editor {
-            width: 100%;
-            flex: 1;
-            min-height: 400px;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            resize: vertical;
-            background: #f8fafc;
-            color: var(--text-color);
-            line-height: 1.5;
-            tab-size: 2;
-        }
-
-        .code-output {
-            width: 100%;
-            flex: 1;
-            min-height: 400px;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            background: #1e293b;
-            color: #e2e8f0;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-
-        .error-line {
-            background-color: rgba(239, 68, 68, 0.2);
-            border-left: 3px solid var(--error-color);
-            padding-left: 0.5rem;
-            margin-left: -0.5rem;
-        }
-
-        .warning-line {
-            background-color: rgba(245, 158, 11, 0.2);
-            border-left: 3px solid var(--warning-color);
-            padding-left: 0.5rem;
-            margin-left: -0.5rem;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.3125rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .btn:focus-visible {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: var(--success-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-warning {
-            background: var(--warning-color);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: var(--warning-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-error {
-            background: var(--error-color);
-            color: white;
-        }
-
-        .btn-error:hover {
-            background: var(--error-dark);
-            transform: translateY(-2px);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 0.625rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            color: var(--text-light);
-            font-size: 0.875rem;
-        }
-
-        .suggestions {
-            margin-top: 1rem;
-        }
-
-        .suggestion-item {
-            background: #f1f5f9;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            border-left: 4px solid var(--warning-color);
-            transition: all 0.3s ease;
-        }
-
-        .suggestion-item.collapsed {
-            max-height: 3.5rem;
-            overflow: hidden;
-        }
-
-        .suggestion-item.expanded {
-            max-height: none;
-        }
-
-        .suggestion-item.error {
-            border-left-color: var(--error-color);
-        }
-
-        .suggestion-item.success {
-            border-left-color: var(--success-color);
-        }
-
-        .suggestion-item.info {
-            border-left-color: var(--info-color);
-        }
-
-        .suggestion-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-
-        .suggestion-title {
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .suggestion-toggle {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            cursor: pointer;
-            color: var(--text-light);
-        }
-
-        .suggestion-details {
-            margin-top: 0.75rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .suggestion-code {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            margin: 0.5rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            overflow-x: auto;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-color);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .history-panel {
-            margin-top: 2rem;
-        }
-
-        .history-item {
-            background: var(--card-bg);
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            border-left: 4px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .history-item:hover {
-            border-left-color: var(--primary-color);
-            transform: translateX(0.3125rem);
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .history-btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 0.25rem;
-            cursor: pointer;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 3rem;
-            padding: 2rem 0;
-            color: var(--text-light);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: var(--text-color);
-            color: white;
-            text-align: center;
-            border-radius: 0.375rem;
-            padding: 0.5rem;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.75rem;
-            font-weight: normal;
-        }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .notification-container {
-            position: fixed;
-            top: 1.25rem;
-            right: 1.25rem;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            max-width: 25rem;
-        }
-
-        .notification {
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            color: white;
-            box-shadow: var(--shadow-lg);
-            animation: slideIn 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .notification.success {
-            background: var(--success-color);
-        }
-
-        .notification.error {
-            background: var(--error-color);
-        }
-
-        .notification.warning {
-            background: var(--warning-color);
-        }
-
-        .notification.info {
-            background: var(--info-color);
-        }
-
-        .notification-icon {
-            font-size: 1.25rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .config-panel {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: #f1f5f9;
-            border-radius: 0.5rem;
-            border-left: 4px solid var(--info-color);
-        }
-
-        .config-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 0.75rem;
-        }
-
-        .config-option {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .config-option input[type="checkbox"] {
-            width: 1.125rem;
-            height: 1.125rem;
-        }
-
-        .line-numbers {
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            padding: 1rem 0.5rem;
-            background: #e2e8f0;
-            border-right: 1px solid var(--border-color);
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            color: var(--text-light);
-            text-align: right;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .editor-wrapper {
-            position: relative;
-            flex: 1;
-        }
-
-        .editor-wrapper .line-numbers {
-            z-index: 1;
-        }
-
-        .editor-wrapper textarea {
-            padding-left: 3rem;
-        }
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 0.625rem;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .language-selector {
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.3125rem;
+        background: var(--card-bg);
+        color: var(--text-color);
+        font-size: 0.875rem;
+      }
+
+      .code-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+      }
+
+      .code-editor {
+        width: 100%;
+        flex: 1;
+        min-height: 400px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-family: "Courier New", monospace;
+        font-size: 0.875rem;
+        resize: vertical;
+        background: #f8fafc;
+        color: var(--text-color);
+        line-height: 1.5;
+        tab-size: 2;
+      }
+
+      .code-output {
+        width: 100%;
+        flex: 1;
+        min-height: 400px;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        font-family: "Courier New", monospace;
+        font-size: 0.875rem;
+        background: #1e293b;
+        color: #e2e8f0;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .error-line {
+        background-color: rgba(239, 68, 68, 0.2);
+        border-left: 3px solid var(--error-color);
+        padding-left: 0.5rem;
+        margin-left: -0.5rem;
+      }
+
+      .warning-line {
+        background-color: rgba(245, 158, 11, 0.2);
+        border-left: 3px solid var(--warning-color);
+        padding-left: 0.5rem;
+        margin-left: -0.5rem;
+      }
+
+      .controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.3125rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .btn:focus-visible {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+
+      .btn-success {
+        background: var(--success-color);
+        color: white;
+      }
+
+      .btn-success:hover {
+        background: var(--success-dark);
+        transform: translateY(-2px);
+      }
+
+      .btn-warning {
+        background: var(--warning-color);
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: var(--warning-dark);
+        transform: translateY(-2px);
+      }
+
+      .btn-error {
+        background: var(--error-color);
+        color: white;
+      }
+
+      .btn-error:hover {
+        background: var(--error-dark);
+        transform: translateY(-2px);
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 0.625rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+
+      .stat-label {
+        color: var(--text-light);
+        font-size: 0.875rem;
+      }
+
+      .suggestions {
+        margin-top: 1rem;
+      }
+
+      .suggestion-item {
+        background: #f1f5f9;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--warning-color);
+        transition: all 0.3s ease;
+      }
+
+      .suggestion-item.collapsed {
+        max-height: 3.5rem;
+        overflow: hidden;
+      }
+
+      .suggestion-item.expanded {
+        max-height: none;
+      }
+
+      .suggestion-item.error {
+        border-left-color: var(--error-color);
+      }
+
+      .suggestion-item.success {
+        border-left-color: var(--success-color);
+      }
+
+      .suggestion-item.info {
+        border-left-color: var(--info-color);
+      }
+
+      .suggestion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .suggestion-title {
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .suggestion-toggle {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: var(--text-light);
+      }
+
+      .suggestion-details {
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .suggestion-code {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        margin: 0.5rem 0;
+        font-family: "Courier New", monospace;
+        font-size: 0.875rem;
+        overflow-x: auto;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .history-panel {
+        margin-top: 2rem;
+      }
+
+      .history-item {
+        background: var(--card-bg);
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--border-color);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .history-item:hover {
+        border-left-color: var(--primary-color);
+        transform: translateX(0.3125rem);
+      }
+
+      .history-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .history-btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0.25rem;
+        cursor: pointer;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem 0;
+        color: var(--text-light);
+        border-top: 1px solid var(--border-color);
+      }
+
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: var(--text-color);
+        color: white;
+        text-align: center;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.75rem;
+        font-weight: normal;
+      }
+
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .notification-container {
+        position: fixed;
+        top: 1.25rem;
+        right: 1.25rem;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        max-width: 25rem;
+      }
+
+      .notification {
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
+        animation: slideIn 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .notification.success {
+        background: var(--success-color);
+      }
+
+      .notification.error {
+        background: var(--error-color);
+      }
+
+      .notification.warning {
+        background: var(--warning-color);
+      }
+
+      .notification.info {
+        background: var(--info-color);
+      }
+
+      .notification-icon {
+        font-size: 1.25rem;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .config-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 0.5rem;
+        border-left: 4px solid var(--info-color);
+      }
+
+      .config-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 0.75rem;
+      }
+
+      .config-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .config-option input[type="checkbox"] {
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+
+      .line-numbers {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        padding: 1rem 0.5rem;
+        background: #e2e8f0;
+        border-right: 1px solid var(--border-color);
+        font-family: "Courier New", monospace;
+        font-size: 0.875rem;
+        color: var(--text-light);
+        text-align: right;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .editor-wrapper {
+        position: relative;
+        flex: 1;
+      }
+
+      .editor-wrapper .line-numbers {
+        z-index: 1;
+      }
+
+      .editor-wrapper textarea {
+        padding-left: 3rem;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>🛠️ Corrector de Scripts Automático - Pro</h1>
-            <p class="subtitle">Mejora, optimiza y corrige tu código automáticamente</p>
-        </header>
+      <header>
+        <h1>🛠️ Corrector de Scripts Automático - Pro</h1>
+        <p class="subtitle">Mejora, optimiza y corrige tu código automáticamente</p>
+      </header>
 
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="issues-count">0</div>
-                <div class="stat-label">Problemas Detectados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="suggestions-count">0</div>
-                <div class="stat-label">Sugerencias</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="optimizations-count">0</div>
-                <div class="stat-label">Optimizaciones</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="time-saved">0s</div>
-                <div class="stat-label">Tiempo Estimado Ahorrado</div>
-            </div>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="issues-count">0</div>
+          <div class="stat-label">Problemas Detectados</div>
         </div>
-
-        <div class="config-panel">
-            <div class="card-title">⚙️ Configuración</div>
-            <div class="config-options">
-                <div class="config-option">
-                    <input type="checkbox" id="autoCorrectPaste" checked>
-                    <label for="autoCorrectPaste">Auto-corregir al pegar</label>
-                </div>
-                <div class="config-option">
-                    <input type="checkbox" id="autoSaveHistory" checked>
-                    <label for="autoSaveHistory">Guardar historial automáticamente</label>
-                </div>
-                <div class="config-option">
-                    <input type="checkbox" id="removeConsoleLogs">
-                    <label for="removeConsoleLogs">Remover console.log() en producción</label>
-                </div>
-                <div class="config-option">
-                    <input type="checkbox" id="validateSyntax" checked>
-                    <label for="validateSyntax">Validar sintaxis en tiempo real</label>
-                </div>
-            </div>
+        <div class="stat-card">
+          <div class="stat-value" id="suggestions-count">0</div>
+          <div class="stat-label">Sugerencias</div>
         </div>
-
-        <div class="controls">
-            <button class="btn btn-primary tooltip" onclick="analyzeCode()">
-                🔍 Analizar Código
-                <span class="tooltiptext">Detecta problemas y sugiere mejoras en tu código</span>
-            </button>
-            <button class="btn btn-success tooltip" onclick="fixCode()">
-                ⚡ Corregir Automáticamente
-                <span class="tooltiptext">Aplica todas las correcciones automáticas disponibles</span>
-            </button>
-            <button class="btn btn-warning tooltip" onclick="optimizeCode()">
-                🚀 Optimizar
-                <span class="tooltiptext">Optimiza el código para mejor rendimiento</span>
-            </button>
-            <button class="btn btn-error tooltip" onclick="clearCode()">
-                🗑️ Limpiar
-                <span class="tooltiptext">Limpia ambos editores de código</span>
-            </button>
-            <button class="btn tooltip" onclick="saveCode()" style="background: #8b5cf6; color: white;">
-                💾 Guardar
-                <span class="tooltiptext">Guarda el código corregido en un archivo</span>
-            </button>
-            <button class="btn tooltip" onclick="copyToClipboard()" style="background: #06b6d4; color: white;">
-                📋 Copiar
-                <span class="tooltiptext">Copia el código corregido al portapapeles</span>
-            </button>
-            <select class="language-selector" id="languageSelector" onchange="updateEditor()">
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="php">PHP</option>
-                <option value="java">Java</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-            </select>
+        <div class="stat-card">
+          <div class="stat-value" id="optimizations-count">0</div>
+          <div class="stat-label">Optimizaciones</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-value" id="time-saved">0s</div>
+          <div class="stat-label">Tiempo Estimado Ahorrado</div>
+        </div>
+      </div>
 
-        <div class="main-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📝 Código Original</div>
-                </div>
-                <div class="code-container">
-                    <div class="editor-wrapper">
-                        <div class="line-numbers" id="inputLineNumbers"></div>
-                        <textarea class="code-editor" id="codeInput" placeholder="Escribe o pega tu código aquí..." oninput="updateLineNumbers('input')">// Ejemplo de código con problemas
+      <div class="config-panel">
+        <div class="card-title">⚙️ Configuración</div>
+        <div class="config-options">
+          <div class="config-option">
+            <input type="checkbox" id="autoCorrectPaste" checked />
+            <label for="autoCorrectPaste">Auto-corregir al pegar</label>
+          </div>
+          <div class="config-option">
+            <input type="checkbox" id="autoSaveHistory" checked />
+            <label for="autoSaveHistory">Guardar historial automáticamente</label>
+          </div>
+          <div class="config-option">
+            <input type="checkbox" id="removeConsoleLogs" />
+            <label for="removeConsoleLogs">Remover console.log() en producción</label>
+          </div>
+          <div class="config-option">
+            <input type="checkbox" id="validateSyntax" checked />
+            <label for="validateSyntax">Validar sintaxis en tiempo real</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary tooltip" onclick="analyzeCode()">
+          🔍 Analizar Código
+          <span class="tooltiptext">Detecta problemas y sugiere mejoras en tu código</span>
+        </button>
+        <button class="btn btn-success tooltip" onclick="fixCode()">
+          ⚡ Corregir Automáticamente
+          <span class="tooltiptext">Aplica todas las correcciones automáticas disponibles</span>
+        </button>
+        <button class="btn btn-warning tooltip" onclick="optimizeCode()">
+          🚀 Optimizar
+          <span class="tooltiptext">Optimiza el código para mejor rendimiento</span>
+        </button>
+        <button class="btn btn-error tooltip" onclick="clearCode()">
+          🗑️ Limpiar
+          <span class="tooltiptext">Limpia ambos editores de código</span>
+        </button>
+        <button class="btn tooltip" onclick="saveCode()" style="background: #8b5cf6; color: white">
+          💾 Guardar
+          <span class="tooltiptext">Guarda el código corregido en un archivo</span>
+        </button>
+        <button
+          class="btn tooltip"
+          onclick="copyToClipboard()"
+          style="background: #06b6d4; color: white"
+        >
+          📋 Copiar
+          <span class="tooltiptext">Copia el código corregido al portapapeles</span>
+        </button>
+        <select class="language-selector" id="languageSelector" onchange="updateEditor()">
+          <option value="javascript">JavaScript</option>
+          <option value="python">Python</option>
+          <option value="php">PHP</option>
+          <option value="java">Java</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+        </select>
+      </div>
+
+      <div class="main-content">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 Código Original</div>
+          </div>
+          <div class="code-container">
+            <div class="editor-wrapper">
+              <div class="line-numbers" id="inputLineNumbers"></div>
+              <textarea
+                class="code-editor"
+                id="codeInput"
+                placeholder="Escribe o pega tu código aquí..."
+                oninput="updateLineNumbers('input')"
+              >
+// Ejemplo de código con problemas
 function calcularSuma(a,b){
 let resultado = a + b
 return resultado
@@ -636,351 +650,368 @@ console.log("Hola " + nombre)
 var x = 10;
 for(var i = 0; i < 5; i++) {
     console.log(i);
-}</textarea>
-                    </div>
-                </div>
+}</textarea
+              >
             </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">✅ Código Corregido</div>
-                </div>
-                <div class="code-container">
-                    <div class="editor-wrapper">
-                        <div class="line-numbers" id="outputLineNumbers"></div>
-                        <pre class="code-output" id="codeOutput">El código corregido aparecerá aquí...</pre>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Analizando y corrigiendo código...</p>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">✅ Código Corregido</div>
+          </div>
+          <div class="code-container">
+            <div class="editor-wrapper">
+              <div class="line-numbers" id="outputLineNumbers"></div>
+              <pre class="code-output" id="codeOutput">El código corregido aparecerá aquí...</pre>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="card suggestions">
-            <div class="card-header">
-                <div class="card-title">💡 Sugerencias y Mejoras</div>
-            </div>
-            <div id="suggestionsList">
-                <div class="suggestion-item info">
-                    <div class="suggestion-header">
-                        <div class="suggestion-title">
-                            ℹ️ Información
-                        </div>
-                        <button class="suggestion-toggle">+</button>
-                    </div>
-                    <div class="suggestion-details">
-                        Haz clic en "Analizar Código" para ver las mejoras sugeridas para tu código.
-                    </div>
-                </div>
-            </div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analizando y corrigiendo código...</p>
+      </div>
+
+      <div class="card suggestions">
+        <div class="card-header">
+          <div class="card-title">💡 Sugerencias y Mejoras</div>
         </div>
-
-        <div class="card history-panel">
-            <div class="card-header">
-                <div class="card-title">📚 Historial de Correcciones</div>
-                <button class="btn" onclick="exportHistory()" style="background: #10b981; color: white; padding: 0.5rem 1rem; font-size: 0.75rem;">
-                    Exportar Historial
-                </button>
+        <div id="suggestionsList">
+          <div class="suggestion-item info">
+            <div class="suggestion-header">
+              <div class="suggestion-title">ℹ️ Información</div>
+              <button class="suggestion-toggle">+</button>
             </div>
-            <div id="historyList">
-                <!-- El historial se cargará aquí -->
+            <div class="suggestion-details">
+              Haz clic en "Analizar Código" para ver las mejoras sugeridas para tu código.
             </div>
+          </div>
         </div>
+      </div>
 
-        <footer>
-            <p>Corrector de Scripts Automático Pro v2.0 - Listo para producción</p>
-            <p>✨ Características avanzadas: Análisis AST, corrección inteligente, optimización, historial completo</p>
-        </footer>
+      <div class="card history-panel">
+        <div class="card-header">
+          <div class="card-title">📚 Historial de Correcciones</div>
+          <button
+            class="btn"
+            onclick="exportHistory()"
+            style="background: #10b981; color: white; padding: 0.5rem 1rem; font-size: 0.75rem"
+          >
+            Exportar Historial
+          </button>
+        </div>
+        <div id="historyList">
+          <!-- El historial se cargará aquí -->
+        </div>
+      </div>
+
+      <footer>
+        <p>Corrector de Scripts Automático Pro v2.0 - Listo para producción</p>
+        <p>
+          ✨ Características avanzadas: Análisis AST, corrección inteligente, optimización,
+          historial completo
+        </p>
+      </footer>
     </div>
 
     <div class="notification-container" id="notificationContainer"></div>
 
     <script>
-        // Base de datos local para el historial
-        let correctionHistory = JSON.parse(localStorage.getItem('correctionHistory')) || [];
-        let currentHistoryIndex = -1;
+      // Base de datos local para el historial
+      let correctionHistory = JSON.parse(localStorage.getItem("correctionHistory")) || [];
+      let currentHistoryIndex = -1;
 
-        // Configuración de la aplicación
-        let appConfig = {
-            autoCorrectPaste: true,
-            autoSaveHistory: true,
-            removeConsoleLogs: false,
-            validateSyntax: true
-        };
+      // Configuración de la aplicación
+      let appConfig = {
+        autoCorrectPaste: true,
+        autoSaveHistory: true,
+        removeConsoleLogs: false,
+        validateSyntax: true,
+      };
 
-        // Cargar configuración
-        function loadConfig() {
-            const savedConfig = localStorage.getItem('appConfig');
-            if (savedConfig) {
-                appConfig = {...appConfig, ...JSON.parse(savedConfig)};
-            }
-            
-            // Aplicar configuración a los checkboxes
-            document.getElementById('autoCorrectPaste').checked = appConfig.autoCorrectPaste;
-            document.getElementById('autoSaveHistory').checked = appConfig.autoSaveHistory;
-            document.getElementById('removeConsoleLogs').checked = appConfig.removeConsoleLogs;
-            document.getElementById('validateSyntax').checked = appConfig.validateSyntax;
+      // Cargar configuración
+      function loadConfig() {
+        const savedConfig = localStorage.getItem("appConfig");
+        if (savedConfig) {
+          appConfig = { ...appConfig, ...JSON.parse(savedConfig) };
         }
 
-        // Guardar configuración
-        function saveConfig() {
-            appConfig.autoCorrectPaste = document.getElementById('autoCorrectPaste').checked;
-            appConfig.autoSaveHistory = document.getElementById('autoSaveHistory').checked;
-            appConfig.removeConsoleLogs = document.getElementById('removeConsoleLogs').checked;
-            appConfig.validateSyntax = document.getElementById('validateSyntax').checked;
-            
-            localStorage.setItem('appConfig', JSON.stringify(appConfig));
-        }
+        // Aplicar configuración a los checkboxes
+        document.getElementById("autoCorrectPaste").checked = appConfig.autoCorrectPaste;
+        document.getElementById("autoSaveHistory").checked = appConfig.autoSaveHistory;
+        document.getElementById("removeConsoleLogs").checked = appConfig.removeConsoleLogs;
+        document.getElementById("validateSyntax").checked = appConfig.validateSyntax;
+      }
 
-        // Patrones de corrección mejorados para diferentes lenguajes
-        const correctionPatterns = {
-            javascript: [
-                // Añadir punto y coma donde falten
-                { 
-                    pattern: /([a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*[^;]+)(?=\n|$)/g, 
-                    replacement: '$1;',
-                    condition: (code, match) => !code.includes('function') && !code.includes('if') && !code.includes('for') && !code.includes('while')
-                },
-                // Corregir declaración de funciones
-                { pattern: /function\s+(\w+)\s*\(([^)]*)\)\s*{/g, replacement: 'function $1($2) {' },
-                // Reemplazar var por const/let cuando sea apropiado
-                { 
-                    pattern: /var\s+(\w+)\s*=/g, 
-                    replacement: 'const $1 =',
-                    condition: (code, match, variable) => {
-                        // Verificar si la variable se reasigna después
-                        const varName = variable;
-                        const reassignRegex = new RegExp(`\\b${varName}\\s*=[^=]`, 'g');
-                        return !reassignRegex.test(code);
-                    }
-                },
-                // Añadir punto y coma después de console.log
-                { pattern: /console\.log\s*\(([^)]+)\)(?=\n|$)/g, replacement: 'console.log($1);' },
-                // Corregir concatenación de strings
-                { pattern: /(\w+)\s*\+\s*''/g, replacement: 'String($1)' },
-                { pattern: /''\s*\+\s*(\w+)/g, replacement: 'String($1)' },
-                // Corregir estructuras de control
-                { pattern: /if\s*\(([^)]+)\)\s*{/g, replacement: 'if ($1) {' },
-                { pattern: /for\s*\(([^;]+);([^;]+);([^)]+)\)\s*{/g, replacement: 'for ($1; $2; $3) {' }
-            ],
-            python: [
-                // Corregir print sin paréntesis
-                { pattern: /print\s+([^\s].+)/g, replacement: 'print($1)' },
-                // Corregir if sin espacios
-                { pattern: /if\s+([^:]+):/g, replacement: 'if $1:' },
-                // Corregir definición de funciones
-                { pattern: /def\s+(\w+)\s*\(([^)]*)\):/g, replacement: 'def $1($2):' },
-                // Mejorar comparaciones booleanas
-                { pattern: /==\s*True/g, replacement: 'is True' },
-                { pattern: /==\s*False/g, replacement: 'is False' }
-            ],
-            php: [
-                // Asegurar etiquetas PHP
-                { pattern: /<\?php\s*\?>/g, replacement: '<?php' },
-                // Corregir echo
-                { pattern: /echo\s+([^;]+);/g, replacement: 'echo $1;' },
-                // Corregir definición de funciones
-                { pattern: /function\s+(\w+)\s*\(([^)]*)\)\s*{/g, replacement: 'function $1($2) {' }
-            ]
-        };
+      // Guardar configuración
+      function saveConfig() {
+        appConfig.autoCorrectPaste = document.getElementById("autoCorrectPaste").checked;
+        appConfig.autoSaveHistory = document.getElementById("autoSaveHistory").checked;
+        appConfig.removeConsoleLogs = document.getElementById("removeConsoleLogs").checked;
+        appConfig.validateSyntax = document.getElementById("validateSyntax").checked;
 
-        // Reglas de análisis de código mejoradas
-        const codeRules = {
-            javascript: [
-                { 
-                    pattern: /function\s+\w+\s*\([^)]*\)\s*{[^}]*}/g,
-                    message: 'Considera usar arrow functions para funciones simples',
-                    type: 'suggestion',
-                    fix: (code) => code.replace(/function\s*\(([^)]*)\)\s*{([^}]*)}/g, '($1) => {$2}')
-                },
-                {
-                    pattern: /var\s+\w+/g,
-                    message: 'Evita usar "var", prefiere "const" o "let"',
-                    type: 'warning',
-                    fix: (code) => code.replace(/var\s+(\w+)/g, 'let $1')
-                },
-                {
-                    pattern: /==/g,
-                    message: 'Considera usar === en lugar de == para comparaciones estrictas',
-                    type: 'suggestion',
-                    fix: (code) => code.replace(/==/g, '===')
-                },
-                {
-                    pattern: /console\.log\([^)]*\)/g,
-                    message: 'Recuerda remover los console.log en producción',
-                    type: 'warning',
-                    fix: (code) => appConfig.removeConsoleLogs ? code.replace(/console\.log\([^)]*\);?\n?/g, '') : code
-                },
-                {
-                    pattern: /for\s*\(\s*var\s+(\w+)\s*=/g,
-                    message: 'Evita declarar variables en el bucle for con var',
-                    type: 'warning',
-                    fix: (code) => code.replace(/for\s*\(\s*var\s+(\w+)\s*=/g, 'for (let $1 =')
-                }
-            ],
-            python: [
-                {
-                    pattern: /print\s+[^\s]/g,
-                    message: 'Usa paréntesis con print: print()',
-                    type: 'error',
-                    fix: (code) => code.replace(/print\s+([^\s].+)/g, 'print($1)')
-                },
-                {
-                    pattern: /except:/g,
-                    message: 'Especifica el tipo de excepción en los bloques except',
-                    type: 'warning',
-                    fix: (code) => code.replace(/except:/g, 'except Exception as e:')
-                },
-                {
-                    pattern: /for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g,
-                    message: 'Considera usar enumerate() para obtener índice y valor',
-                    type: 'suggestion',
-                    fix: (code) => code.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g, 'for $1, item in enumerate($2):')
-                }
-            ]
-        };
+        localStorage.setItem("appConfig", JSON.stringify(appConfig));
+      }
 
-        // Inicializar la aplicación
-        document.addEventListener('DOMContentLoaded', function() {
-            loadConfig();
-            updateHistoryDisplay();
-            updateEditor();
-            updateLineNumbers('input');
-            updateLineNumbers('output');
-            
-            // Configurar event listeners para los checkboxes
-            document.querySelectorAll('.config-option input').forEach(checkbox => {
-                checkbox.addEventListener('change', saveConfig);
-            });
-            
-            // Configurar event listener para pegado de código
-            document.getElementById('codeInput').addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    if (appConfig.autoCorrectPaste) {
-                        analyzeCode();
-                    }
-                    updateLineNumbers('input');
-                }, 100);
-            });
-            
-            // Validación de sintaxis en tiempo real
-            document.getElementById('codeInput').addEventListener('input', function() {
-                updateLineNumbers('input');
-                if (appConfig.validateSyntax) {
-                    validateSyntax();
-                }
-            });
+      // Patrones de corrección mejorados para diferentes lenguajes
+      const correctionPatterns = {
+        javascript: [
+          // Añadir punto y coma donde falten
+          {
+            pattern: /([a-zA-Z_$][a-zA-Z0-9_$]*\s*=\s*[^;]+)(?=\n|$)/g,
+            replacement: "$1;",
+            condition: (code, match) =>
+              !code.includes("function") &&
+              !code.includes("if") &&
+              !code.includes("for") &&
+              !code.includes("while"),
+          },
+          // Corregir declaración de funciones
+          { pattern: /function\s+(\w+)\s*\(([^)]*)\)\s*{/g, replacement: "function $1($2) {" },
+          // Reemplazar var por const/let cuando sea apropiado
+          {
+            pattern: /var\s+(\w+)\s*=/g,
+            replacement: "const $1 =",
+            condition: (code, match, variable) => {
+              // Verificar si la variable se reasigna después
+              const varName = variable;
+              const reassignRegex = new RegExp(`\\b${varName}\\s*=[^=]`, "g");
+              return !reassignRegex.test(code);
+            },
+          },
+          // Añadir punto y coma después de console.log
+          { pattern: /console\.log\s*\(([^)]+)\)(?=\n|$)/g, replacement: "console.log($1);" },
+          // Corregir concatenación de strings
+          { pattern: /(\w+)\s*\+\s*''/g, replacement: "String($1)" },
+          { pattern: /''\s*\+\s*(\w+)/g, replacement: "String($1)" },
+          // Corregir estructuras de control
+          { pattern: /if\s*\(([^)]+)\)\s*{/g, replacement: "if ($1) {" },
+          { pattern: /for\s*\(([^;]+);([^;]+);([^)]+)\)\s*{/g, replacement: "for ($1; $2; $3) {" },
+        ],
+        python: [
+          // Corregir print sin paréntesis
+          { pattern: /print\s+([^\s].+)/g, replacement: "print($1)" },
+          // Corregir if sin espacios
+          { pattern: /if\s+([^:]+):/g, replacement: "if $1:" },
+          // Corregir definición de funciones
+          { pattern: /def\s+(\w+)\s*\(([^)]*)\):/g, replacement: "def $1($2):" },
+          // Mejorar comparaciones booleanas
+          { pattern: /==\s*True/g, replacement: "is True" },
+          { pattern: /==\s*False/g, replacement: "is False" },
+        ],
+        php: [
+          // Asegurar etiquetas PHP
+          { pattern: /<\?php\s*\?>/g, replacement: "<?php" },
+          // Corregir echo
+          { pattern: /echo\s+([^;]+);/g, replacement: "echo $1;" },
+          // Corregir definición de funciones
+          { pattern: /function\s+(\w+)\s*\(([^)]*)\)\s*{/g, replacement: "function $1($2) {" },
+        ],
+      };
+
+      // Reglas de análisis de código mejoradas
+      const codeRules = {
+        javascript: [
+          {
+            pattern: /function\s+\w+\s*\([^)]*\)\s*{[^}]*}/g,
+            message: "Considera usar arrow functions para funciones simples",
+            type: "suggestion",
+            fix: (code) => code.replace(/function\s*\(([^)]*)\)\s*{([^}]*)}/g, "($1) => {$2}"),
+          },
+          {
+            pattern: /var\s+\w+/g,
+            message: 'Evita usar "var", prefiere "const" o "let"',
+            type: "warning",
+            fix: (code) => code.replace(/var\s+(\w+)/g, "let $1"),
+          },
+          {
+            pattern: /==/g,
+            message: "Considera usar === en lugar de == para comparaciones estrictas",
+            type: "suggestion",
+            fix: (code) => code.replace(/==/g, "==="),
+          },
+          {
+            pattern: /console\.log\([^)]*\)/g,
+            message: "Recuerda remover los console.log en producción",
+            type: "warning",
+            fix: (code) =>
+              appConfig.removeConsoleLogs ? code.replace(/console\.log\([^)]*\);?\n?/g, "") : code,
+          },
+          {
+            pattern: /for\s*\(\s*var\s+(\w+)\s*=/g,
+            message: "Evita declarar variables en el bucle for con var",
+            type: "warning",
+            fix: (code) => code.replace(/for\s*\(\s*var\s+(\w+)\s*=/g, "for (let $1 ="),
+          },
+        ],
+        python: [
+          {
+            pattern: /print\s+[^\s]/g,
+            message: "Usa paréntesis con print: print()",
+            type: "error",
+            fix: (code) => code.replace(/print\s+([^\s].+)/g, "print($1)"),
+          },
+          {
+            pattern: /except:/g,
+            message: "Especifica el tipo de excepción en los bloques except",
+            type: "warning",
+            fix: (code) => code.replace(/except:/g, "except Exception as e:"),
+          },
+          {
+            pattern: /for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g,
+            message: "Considera usar enumerate() para obtener índice y valor",
+            type: "suggestion",
+            fix: (code) =>
+              code.replace(
+                /for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g,
+                "for $1, item in enumerate($2):"
+              ),
+          },
+        ],
+      };
+
+      // Inicializar la aplicación
+      document.addEventListener("DOMContentLoaded", function () {
+        loadConfig();
+        updateHistoryDisplay();
+        updateEditor();
+        updateLineNumbers("input");
+        updateLineNumbers("output");
+
+        // Configurar event listeners para los checkboxes
+        document.querySelectorAll(".config-option input").forEach((checkbox) => {
+          checkbox.addEventListener("change", saveConfig);
         });
 
-        function updateLineNumbers(editorType) {
-            const lineNumbers = document.getElementById(`${editorType}LineNumbers`);
-            const editor = editorType === 'input' ? 
-                document.getElementById('codeInput') : 
-                document.getElementById('codeOutput');
-            
-            const lines = editorType === 'input' ? 
-                editor.value.split('\n').length : 
-                editor.textContent.split('\n').length;
-            
-            let numbersHTML = '';
-            for (let i = 1; i <= lines; i++) {
-                numbersHTML += `${i}\n`;
+        // Configurar event listener para pegado de código
+        document.getElementById("codeInput").addEventListener("paste", function (e) {
+          setTimeout(() => {
+            if (appConfig.autoCorrectPaste) {
+              analyzeCode();
             }
-            
-            lineNumbers.innerHTML = numbersHTML;
+            updateLineNumbers("input");
+          }, 100);
+        });
+
+        // Validación de sintaxis en tiempo real
+        document.getElementById("codeInput").addEventListener("input", function () {
+          updateLineNumbers("input");
+          if (appConfig.validateSyntax) {
+            validateSyntax();
+          }
+        });
+      });
+
+      function updateLineNumbers(editorType) {
+        const lineNumbers = document.getElementById(`${editorType}LineNumbers`);
+        const editor =
+          editorType === "input"
+            ? document.getElementById("codeInput")
+            : document.getElementById("codeOutput");
+
+        const lines =
+          editorType === "input"
+            ? editor.value.split("\n").length
+            : editor.textContent.split("\n").length;
+
+        let numbersHTML = "";
+        for (let i = 1; i <= lines; i++) {
+          numbersHTML += `${i}\n`;
         }
 
-        function updateEditor() {
-            const language = document.getElementById('languageSelector').value;
-            const codeInput = document.getElementById('codeInput');
-            
-            // Cambiar placeholder según el lenguaje
-            switch(language) {
-                case 'javascript':
-                    codeInput.placeholder = '// Escribe tu código JavaScript aquí...';
-                    break;
-                case 'python':
-                    codeInput.placeholder = '# Escribe tu código Python aquí...';
-                    break;
-                case 'php':
-                    codeInput.placeholder = '<?php // Escribe tu código PHP aquí... ?>';
-                    break;
-                default:
-                    codeInput.placeholder = 'Escribe o pega tu código aquí...';
-            }
+        lineNumbers.innerHTML = numbersHTML;
+      }
+
+      function updateEditor() {
+        const language = document.getElementById("languageSelector").value;
+        const codeInput = document.getElementById("codeInput");
+
+        // Cambiar placeholder según el lenguaje
+        switch (language) {
+          case "javascript":
+            codeInput.placeholder = "// Escribe tu código JavaScript aquí...";
+            break;
+          case "python":
+            codeInput.placeholder = "# Escribe tu código Python aquí...";
+            break;
+          case "php":
+            codeInput.placeholder = "<?php // Escribe tu código PHP aquí... ?>";
+            break;
+          default:
+            codeInput.placeholder = "Escribe o pega tu código aquí...";
         }
+      }
 
-        function showLoading() {
-            document.getElementById('loading').style.display = 'block';
-        }
+      function showLoading() {
+        document.getElementById("loading").style.display = "block";
+      }
 
-        function hideLoading() {
-            document.getElementById('loading').style.display = 'none';
-        }
+      function hideLoading() {
+        document.getElementById("loading").style.display = "none";
+      }
 
-        function analyzeCode() {
-            showLoading();
-            const code = document.getElementById('codeInput').value;
-            const language = document.getElementById('languageSelector').value;
-            
-            setTimeout(() => {
-                const issues = detectIssues(code, language);
-                displaySuggestions(issues);
-                updateStats(issues);
-                hideLoading();
-            }, 1000);
-        }
+      function analyzeCode() {
+        showLoading();
+        const code = document.getElementById("codeInput").value;
+        const language = document.getElementById("languageSelector").value;
 
-        function detectIssues(code, language) {
-            const issues = [];
-            const rules = codeRules[language] || [];
+        setTimeout(() => {
+          const issues = detectIssues(code, language);
+          displaySuggestions(issues);
+          updateStats(issues);
+          hideLoading();
+        }, 1000);
+      }
 
-            rules.forEach(rule => {
-                const matches = code.match(rule.pattern);
-                if (matches) {
-                    matches.forEach(match => {
-                        issues.push({
-                            type: rule.type,
-                            message: rule.message,
-                            code: match,
-                            fix: rule.fix,
-                            count: matches.length
-                        });
-                    });
-                }
+      function detectIssues(code, language) {
+        const issues = [];
+        const rules = codeRules[language] || [];
+
+        rules.forEach((rule) => {
+          const matches = code.match(rule.pattern);
+          if (matches) {
+            matches.forEach((match) => {
+              issues.push({
+                type: rule.type,
+                message: rule.message,
+                code: match,
+                fix: rule.fix,
+                count: matches.length,
+              });
             });
+          }
+        });
 
-            // Análisis básico de calidad
-            if (code.length > 1000) {
-                issues.push({
-                    type: 'suggestion',
-                    message: 'El código es bastante largo, considera dividirlo en funciones más pequeñas',
-                    code: '',
-                    count: 1
-                });
-            }
-
-            if ((code.match(/\n/g) || []).length < 5) {
-                issues.push({
-                    type: 'warning',
-                    message: 'El código podría beneficiarse de más saltos de línea para mejor legibilidad',
-                    code: '',
-                    count: 1
-                });
-            }
-
-            return issues;
+        // Análisis básico de calidad
+        if (code.length > 1000) {
+          issues.push({
+            type: "suggestion",
+            message: "El código es bastante largo, considera dividirlo en funciones más pequeñas",
+            code: "",
+            count: 1,
+          });
         }
 
-        function displaySuggestions(issues) {
-            const suggestionsList = document.getElementById('suggestionsList');
-            suggestionsList.innerHTML = '';
+        if ((code.match(/\n/g) || []).length < 5) {
+          issues.push({
+            type: "warning",
+            message: "El código podría beneficiarse de más saltos de línea para mejor legibilidad",
+            code: "",
+            count: 1,
+          });
+        }
 
-            if (issues.length === 0) {
-                suggestionsList.innerHTML = `
+        return issues;
+      }
+
+      function displaySuggestions(issues) {
+        const suggestionsList = document.getElementById("suggestionsList");
+        suggestionsList.innerHTML = "";
+
+        if (issues.length === 0) {
+          suggestionsList.innerHTML = `
                     <div class="suggestion-item success">
                         <div class="suggestion-header">
                             <div class="suggestion-title">✅ ¡Excelente!</div>
@@ -991,13 +1022,13 @@ for(var i = 0; i < 5; i++) {
                         </div>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            issues.forEach((issue, index) => {
-                const item = document.createElement('div');
-                item.className = `suggestion-item ${issue.type} collapsed`;
-                item.innerHTML = `
+        issues.forEach((issue, index) => {
+          const item = document.createElement("div");
+          item.className = `suggestion-item ${issue.type} collapsed`;
+          item.innerHTML = `
                     <div class="suggestion-header">
                         <div class="suggestion-title">
                             ${getIssueIcon(issue.type)} ${issue.type.toUpperCase()}
@@ -1006,360 +1037,382 @@ for(var i = 0; i < 5; i++) {
                     </div>
                     <div class="suggestion-details">
                         <p>${issue.message}</p>
-                        ${issue.code ? `<div class="suggestion-code">${issue.code}</div>` : ''}
-                        ${issue.count > 1 ? `<p><small>Encontrado ${issue.count} veces</small></p>` : ''}
-                        ${issue.fix ? `<button class="btn" onclick="applySingleFix(${index})" style="padding: 0.5rem 1rem; font-size: 0.75rem; margin-top: 0.5rem;">Aplicar esta corrección</button>` : ''}
+                        ${issue.code ? `<div class="suggestion-code">${issue.code}</div>` : ""}
+                        ${issue.count > 1 ? `<p><small>Encontrado ${issue.count} veces</small></p>` : ""}
+                        ${issue.fix ? `<button class="btn" onclick="applySingleFix(${index})" style="padding: 0.5rem 1rem; font-size: 0.75rem; margin-top: 0.5rem;">Aplicar esta corrección</button>` : ""}
                     </div>
                 `;
-                suggestionsList.appendChild(item);
-            });
+          suggestionsList.appendChild(item);
+        });
 
-            // Añadir event listeners para expandir/colapsar
-            document.querySelectorAll('.suggestion-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const item = this.closest('.suggestion-item');
-                    if (item.classList.contains('collapsed')) {
-                        item.classList.remove('collapsed');
-                        item.classList.add('expanded');
-                        this.textContent = '-';
-                    } else {
-                        item.classList.remove('expanded');
-                        item.classList.add('collapsed');
-                        this.textContent = '+';
-                    }
-                });
-            });
-        }
-
-        function getIssueIcon(type) {
-            switch(type) {
-                case 'error': return '❌';
-                case 'warning': return '⚠️';
-                case 'suggestion': return '💡';
-                default: return 'ℹ️';
-            }
-        }
-
-        function applySingleFix(index) {
-            const code = document.getElementById('codeInput').value;
-            const language = document.getElementById('languageSelector').value;
-            const rules = codeRules[language] || [];
-            const rule = rules[index];
-            
-            if (rule && rule.fix) {
-                const fixedCode = rule.fix(code);
-                document.getElementById('codeInput').value = fixedCode;
-                updateLineNumbers('input');
-                showNotification('Corrección aplicada correctamente', 'success');
-                analyzeCode();
-            }
-        }
-
-        function fixCode() {
-            if (!confirm('¿Estás seguro de que quieres aplicar todas las correcciones automáticas? Esto sobrescribirá el código actual.')) {
-                return;
-            }
-            
-            showLoading();
-            const code = document.getElementById('codeInput').value;
-            const language = document.getElementById('languageSelector').value;
-            
-            setTimeout(() => {
-                const fixedCode = applyCorrections(code, language);
-                document.getElementById('codeOutput').textContent = fixedCode;
-                updateLineNumbers('output');
-                
-                // Guardar en historial
-                if (appConfig.autoSaveHistory) {
-                    saveToHistory(code, fixedCode, language, 'correction');
-                }
-                hideLoading();
-                
-                // Mostrar mensaje de éxito
-                showNotification('Código corregido exitosamente!', 'success');
-            }, 1500);
-        }
-
-        function applyCorrections(code, language) {
-            let fixedCode = code;
-            const patterns = correctionPatterns[language] || [];
-
-            patterns.forEach(pattern => {
-                if (!pattern.condition || pattern.condition(code, pattern.match)) {
-                    fixedCode = fixedCode.replace(pattern.pattern, pattern.replacement);
-                }
-            });
-
-            // Aplicar reglas de corrección
-            const rules = codeRules[language] || [];
-            rules.forEach(rule => {
-                if (rule.fix) {
-                    fixedCode = rule.fix(fixedCode);
-                }
-            });
-
-            // Correcciones generales
-            fixedCode = fixedCode.replace(/\s+\n/g, '\n'); // Remover espacios al final de línea
-            fixedCode = fixedCode.replace(/\n{3,}/g, '\n\n'); // Máximo 2 saltos de línea consecutivos
-
-            return fixedCode;
-        }
-
-        function optimizeCode() {
-            showLoading();
-            const code = document.getElementById('codeInput').value;
-            const language = document.getElementById('languageSelector').value;
-            
-            setTimeout(() => {
-                let optimizedCode = code;
-                
-                // Optimizaciones específicas por lenguaje
-                switch(language) {
-                    case 'javascript':
-                        optimizedCode = optimizeJavaScript(code);
-                        break;
-                    case 'python':
-                        optimizedCode = optimizePython(code);
-                        break;
-                    default:
-                        optimizedCode = applyBasicOptimizations(code);
-                }
-                
-                document.getElementById('codeOutput').textContent = optimizedCode;
-                updateLineNumbers('output');
-                
-                if (appConfig.autoSaveHistory) {
-                    saveToHistory(code, optimizedCode, language, 'optimization');
-                }
-                hideLoading();
-                showNotification('Código optimizado exitosamente!', 'success');
-            }, 2000);
-        }
-
-        function optimizeJavaScript(code) {
-            let optimized = code;
-            
-            // Reemplazar function por arrow functions cuando sea posible
-            optimized = optimized.replace(/function\s*\(([^)]*)\)\s*{([^}]*)}/g, 
-                '($1) => {$2}');
-            
-            // Simplificar returns
-            optimized = optimized.replace(/{\s*return\s+([^;]+);\s*}/g, 
-                '{ return $1; }');
-            
-            // Reemplazar bucles for por métodos de array cuando sea posible
-            optimized = optimized.replace(/for\s*\(\s*let\s+(\w+)\s*=\s*0;\s*\1\s*<\s*(\w+)\.length;\s*\1\+\+\)\s*{([^}]*)}/g,
-                '$2.forEach(($1) => {$3})');
-            
-            return optimized;
-        }
-
-        function optimizePython(code) {
-            let optimized = code;
-            
-            // Reemplazar range(len()) por enumerate
-            optimized = optimized.replace(/for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g,
-                'for $1, item in enumerate($2):');
-            
-            return optimized;
-        }
-
-        function applyBasicOptimizations(code) {
-            return code
-                .replace(/\s{2,}/g, ' ') // Múltiples espacios por uno
-                .replace(/\n\s*\n\s*\n/g, '\n\n'); // Múltiples líneas vacías por dos
-        }
-
-        function clearCode() {
-            if (confirm('¿Estás seguro de que quieres limpiar ambos editores?')) {
-                document.getElementById('codeInput').value = '';
-                document.getElementById('codeOutput').textContent = 'El código corregido aparecerá aquí...';
-                document.getElementById('suggestionsList').innerHTML = 
-                    '<div class="suggestion-item info">Las sugerencias aparecerán aquí después del análisis.</div>';
-                updateStats([]);
-                updateLineNumbers('input');
-                updateLineNumbers('output');
-                showNotification('Editores limpiados', 'info');
-            }
-        }
-
-        function saveCode() {
-            const correctedCode = document.getElementById('codeOutput').textContent;
-            if (correctedCode && correctedCode !== 'El código corregido aparecerá aquí...') {
-                const language = document.getElementById('languageSelector').value;
-                const extension = getFileExtension(language);
-                const blob = new Blob([correctedCode], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `codigo_corregido_${new Date().getTime()}.${extension}`;
-                a.click();
-                URL.revokeObjectURL(url);
-                showNotification('Código guardado exitosamente!', 'success');
+        // Añadir event listeners para expandir/colapsar
+        document.querySelectorAll(".suggestion-toggle").forEach((toggle) => {
+          toggle.addEventListener("click", function () {
+            const item = this.closest(".suggestion-item");
+            if (item.classList.contains("collapsed")) {
+              item.classList.remove("collapsed");
+              item.classList.add("expanded");
+              this.textContent = "-";
             } else {
-                showNotification('No hay código corregido para guardar', 'error');
+              item.classList.remove("expanded");
+              item.classList.add("collapsed");
+              this.textContent = "+";
             }
+          });
+        });
+      }
+
+      function getIssueIcon(type) {
+        switch (type) {
+          case "error":
+            return "❌";
+          case "warning":
+            return "⚠️";
+          case "suggestion":
+            return "💡";
+          default:
+            return "ℹ️";
+        }
+      }
+
+      function applySingleFix(index) {
+        const code = document.getElementById("codeInput").value;
+        const language = document.getElementById("languageSelector").value;
+        const rules = codeRules[language] || [];
+        const rule = rules[index];
+
+        if (rule && rule.fix) {
+          const fixedCode = rule.fix(code);
+          document.getElementById("codeInput").value = fixedCode;
+          updateLineNumbers("input");
+          showNotification("Corrección aplicada correctamente", "success");
+          analyzeCode();
+        }
+      }
+
+      function fixCode() {
+        if (
+          !confirm(
+            "¿Estás seguro de que quieres aplicar todas las correcciones automáticas? Esto sobrescribirá el código actual."
+          )
+        ) {
+          return;
         }
 
-        function copyToClipboard() {
-            const correctedCode = document.getElementById('codeOutput').textContent;
-            if (correctedCode && correctedCode !== 'El código corregido aparecerá aquí...') {
-                navigator.clipboard.writeText(correctedCode).then(() => {
-                    showNotification('Código copiado al portapapeles!', 'success');
-                }).catch(err => {
-                    showNotification('Error al copiar al portapapeles', 'error');
-                });
-            } else {
-                showNotification('No hay código corregido para copiar', 'error');
-            }
+        showLoading();
+        const code = document.getElementById("codeInput").value;
+        const language = document.getElementById("languageSelector").value;
+
+        setTimeout(() => {
+          const fixedCode = applyCorrections(code, language);
+          document.getElementById("codeOutput").textContent = fixedCode;
+          updateLineNumbers("output");
+
+          // Guardar en historial
+          if (appConfig.autoSaveHistory) {
+            saveToHistory(code, fixedCode, language, "correction");
+          }
+          hideLoading();
+
+          // Mostrar mensaje de éxito
+          showNotification("Código corregido exitosamente!", "success");
+        }, 1500);
+      }
+
+      function applyCorrections(code, language) {
+        let fixedCode = code;
+        const patterns = correctionPatterns[language] || [];
+
+        patterns.forEach((pattern) => {
+          if (!pattern.condition || pattern.condition(code, pattern.match)) {
+            fixedCode = fixedCode.replace(pattern.pattern, pattern.replacement);
+          }
+        });
+
+        // Aplicar reglas de corrección
+        const rules = codeRules[language] || [];
+        rules.forEach((rule) => {
+          if (rule.fix) {
+            fixedCode = rule.fix(fixedCode);
+          }
+        });
+
+        // Correcciones generales
+        fixedCode = fixedCode.replace(/\s+\n/g, "\n"); // Remover espacios al final de línea
+        fixedCode = fixedCode.replace(/\n{3,}/g, "\n\n"); // Máximo 2 saltos de línea consecutivos
+
+        return fixedCode;
+      }
+
+      function optimizeCode() {
+        showLoading();
+        const code = document.getElementById("codeInput").value;
+        const language = document.getElementById("languageSelector").value;
+
+        setTimeout(() => {
+          let optimizedCode = code;
+
+          // Optimizaciones específicas por lenguaje
+          switch (language) {
+            case "javascript":
+              optimizedCode = optimizeJavaScript(code);
+              break;
+            case "python":
+              optimizedCode = optimizePython(code);
+              break;
+            default:
+              optimizedCode = applyBasicOptimizations(code);
+          }
+
+          document.getElementById("codeOutput").textContent = optimizedCode;
+          updateLineNumbers("output");
+
+          if (appConfig.autoSaveHistory) {
+            saveToHistory(code, optimizedCode, language, "optimization");
+          }
+          hideLoading();
+          showNotification("Código optimizado exitosamente!", "success");
+        }, 2000);
+      }
+
+      function optimizeJavaScript(code) {
+        let optimized = code;
+
+        // Reemplazar function por arrow functions cuando sea posible
+        optimized = optimized.replace(/function\s*\(([^)]*)\)\s*{([^}]*)}/g, "($1) => {$2}");
+
+        // Simplificar returns
+        optimized = optimized.replace(/{\s*return\s+([^;]+);\s*}/g, "{ return $1; }");
+
+        // Reemplazar bucles for por métodos de array cuando sea posible
+        optimized = optimized.replace(
+          /for\s*\(\s*let\s+(\w+)\s*=\s*0;\s*\1\s*<\s*(\w+)\.length;\s*\1\+\+\)\s*{([^}]*)}/g,
+          "$2.forEach(($1) => {$3})"
+        );
+
+        return optimized;
+      }
+
+      function optimizePython(code) {
+        let optimized = code;
+
+        // Reemplazar range(len()) por enumerate
+        optimized = optimized.replace(
+          /for\s+(\w+)\s+in\s+range\s*\(\s*len\s*\((\w+)\)\s*\):/g,
+          "for $1, item in enumerate($2):"
+        );
+
+        return optimized;
+      }
+
+      function applyBasicOptimizations(code) {
+        return code
+          .replace(/\s{2,}/g, " ") // Múltiples espacios por uno
+          .replace(/\n\s*\n\s*\n/g, "\n\n"); // Múltiples líneas vacías por dos
+      }
+
+      function clearCode() {
+        if (confirm("¿Estás seguro de que quieres limpiar ambos editores?")) {
+          document.getElementById("codeInput").value = "";
+          document.getElementById("codeOutput").textContent =
+            "El código corregido aparecerá aquí...";
+          document.getElementById("suggestionsList").innerHTML =
+            '<div class="suggestion-item info">Las sugerencias aparecerán aquí después del análisis.</div>';
+          updateStats([]);
+          updateLineNumbers("input");
+          updateLineNumbers("output");
+          showNotification("Editores limpiados", "info");
+        }
+      }
+
+      function saveCode() {
+        const correctedCode = document.getElementById("codeOutput").textContent;
+        if (correctedCode && correctedCode !== "El código corregido aparecerá aquí...") {
+          const language = document.getElementById("languageSelector").value;
+          const extension = getFileExtension(language);
+          const blob = new Blob([correctedCode], { type: "text/plain" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `codigo_corregido_${new Date().getTime()}.${extension}`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showNotification("Código guardado exitosamente!", "success");
+        } else {
+          showNotification("No hay código corregido para guardar", "error");
+        }
+      }
+
+      function copyToClipboard() {
+        const correctedCode = document.getElementById("codeOutput").textContent;
+        if (correctedCode && correctedCode !== "El código corregido aparecerá aquí...") {
+          navigator.clipboard
+            .writeText(correctedCode)
+            .then(() => {
+              showNotification("Código copiado al portapapeles!", "success");
+            })
+            .catch((err) => {
+              showNotification("Error al copiar al portapapeles", "error");
+            });
+        } else {
+          showNotification("No hay código corregido para copiar", "error");
+        }
+      }
+
+      function getFileExtension(language) {
+        switch (language) {
+          case "javascript":
+            return "js";
+          case "python":
+            return "py";
+          case "php":
+            return "php";
+          case "java":
+            return "java";
+          case "html":
+            return "html";
+          case "css":
+            return "css";
+          default:
+            return "txt";
+        }
+      }
+
+      function saveToHistory(original, corrected, language, type = "correction") {
+        const historyItem = {
+          id: Date.now(),
+          original: original,
+          corrected: corrected,
+          language,
+          type,
+          timestamp: new Date().toLocaleString(),
+        };
+
+        correctionHistory.unshift(historyItem);
+        if (correctionHistory.length > 20) {
+          correctionHistory = correctionHistory.slice(0, 20);
         }
 
-        function getFileExtension(language) {
-            switch(language) {
-                case 'javascript': return 'js';
-                case 'python': return 'py';
-                case 'php': return 'php';
-                case 'java': return 'java';
-                case 'html': return 'html';
-                case 'css': return 'css';
-                default: return 'txt';
-            }
+        localStorage.setItem("correctionHistory", JSON.stringify(correctionHistory));
+        updateHistoryDisplay();
+      }
+
+      function updateHistoryDisplay() {
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = "";
+
+        if (correctionHistory.length === 0) {
+          historyList.innerHTML =
+            '<div class="suggestion-item">No hay correcciones en el historial.</div>';
+          return;
         }
 
-        function saveToHistory(original, corrected, language, type = 'correction') {
-            const historyItem = {
-                id: Date.now(),
-                original: original,
-                corrected: corrected,
-                language,
-                type,
-                timestamp: new Date().toLocaleString()
-            };
-            
-            correctionHistory.unshift(historyItem);
-            if (correctionHistory.length > 20) {
-                correctionHistory = correctionHistory.slice(0, 20);
-            }
-            
-            localStorage.setItem('correctionHistory', JSON.stringify(correctionHistory));
-            updateHistoryDisplay();
-        }
-
-        function updateHistoryDisplay() {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = '';
-            
-            if (correctionHistory.length === 0) {
-                historyList.innerHTML = '<div class="suggestion-item">No hay correcciones en el historial.</div>';
-                return;
-            }
-            
-            correctionHistory.forEach((item, index) => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <strong>${item.type === 'optimization' ? '🚀 Optimización' : '✅ Corrección'} (${item.language})</strong>
+        correctionHistory.forEach((item, index) => {
+          const historyItem = document.createElement("div");
+          historyItem.className = "history-item";
+          historyItem.innerHTML = `
+                    <strong>${item.type === "optimization" ? "🚀 Optimización" : "✅ Corrección"} (${item.language})</strong>
                     <br><small>${item.timestamp}</small>
-                    <br><code>${item.original.substring(0, 100)}${item.original.length > 100 ? '...' : ''}</code>
+                    <br><code>${item.original.substring(0, 100)}${item.original.length > 100 ? "..." : ""}</code>
                     <div class="history-actions">
                         <button class="history-btn" onclick="loadFromHistory(${index})">Cargar</button>
                         <button class="history-btn" onclick="deleteFromHistory(${index})">Eliminar</button>
                     </div>
                 `;
-                historyList.appendChild(historyItem);
-            });
-        }
+          historyList.appendChild(historyItem);
+        });
+      }
 
-        function loadFromHistory(index) {
-            const item = correctionHistory[index];
-            document.getElementById('codeInput').value = item.original;
-            document.getElementById('codeOutput').textContent = item.corrected;
-            document.getElementById('languageSelector').value = item.language;
-            updateLineNumbers('input');
-            updateLineNumbers('output');
-            showNotification(`Cargado ${item.type} del historial`, 'info');
-        }
+      function loadFromHistory(index) {
+        const item = correctionHistory[index];
+        document.getElementById("codeInput").value = item.original;
+        document.getElementById("codeOutput").textContent = item.corrected;
+        document.getElementById("languageSelector").value = item.language;
+        updateLineNumbers("input");
+        updateLineNumbers("output");
+        showNotification(`Cargado ${item.type} del historial`, "info");
+      }
 
-        function deleteFromHistory(index) {
-            if (confirm('¿Estás seguro de que quieres eliminar este elemento del historial?')) {
-                correctionHistory.splice(index, 1);
-                localStorage.setItem('correctionHistory', JSON.stringify(correctionHistory));
-                updateHistoryDisplay();
-                showNotification('Elemento eliminado del historial', 'info');
-            }
+      function deleteFromHistory(index) {
+        if (confirm("¿Estás seguro de que quieres eliminar este elemento del historial?")) {
+          correctionHistory.splice(index, 1);
+          localStorage.setItem("correctionHistory", JSON.stringify(correctionHistory));
+          updateHistoryDisplay();
+          showNotification("Elemento eliminado del historial", "info");
         }
+      }
 
-        function exportHistory() {
-            const historyData = JSON.stringify(correctionHistory, null, 2);
-            const blob = new Blob([historyData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `historial_correcciones_${new Date().getTime()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showNotification('Historial exportado exitosamente', 'success');
+      function exportHistory() {
+        const historyData = JSON.stringify(correctionHistory, null, 2);
+        const blob = new Blob([historyData], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `historial_correcciones_${new Date().getTime()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification("Historial exportado exitosamente", "success");
+      }
+
+      function updateStats(issues) {
+        const errorCount = issues.filter((i) => i.type === "error").length;
+        const warningCount = issues.filter((i) => i.type === "warning").length;
+        const suggestionCount = issues.filter((i) => i.type === "suggestion").length;
+
+        document.getElementById("issues-count").textContent = errorCount + warningCount;
+        document.getElementById("suggestions-count").textContent = suggestionCount;
+        document.getElementById("optimizations-count").textContent = issues.length;
+        document.getElementById("time-saved").textContent = `${issues.length * 2}s`;
+      }
+
+      function validateSyntax() {
+        const code = document.getElementById("codeInput").value;
+        const language = document.getElementById("languageSelector").value;
+
+        // Validación básica de sintaxis
+        if (language === "javascript") {
+          try {
+            // Intentar parsear el código JavaScript
+            new Function(code);
+          } catch (e) {
+            // Resaltar líneas con errores (implementación básica)
+            highlightErrorLines(e.message);
+          }
         }
+      }
 
-        function updateStats(issues) {
-            const errorCount = issues.filter(i => i.type === 'error').length;
-            const warningCount = issues.filter(i => i.type === 'warning').length;
-            const suggestionCount = issues.filter(i => i.type === 'suggestion').length;
-            
-            document.getElementById('issues-count').textContent = errorCount + warningCount;
-            document.getElementById('suggestions-count').textContent = suggestionCount;
-            document.getElementById('optimizations-count').textContent = issues.length;
-            document.getElementById('time-saved').textContent = `${issues.length * 2}s`;
-        }
+      function highlightErrorLines(errorMessage) {
+        // Implementación básica para resaltar líneas con errores
+        // En una implementación real, se usaría un parser como Esprima o Acorn
+        console.log("Error de sintaxis detectado:", errorMessage);
+      }
 
-        function validateSyntax() {
-            const code = document.getElementById('codeInput').value;
-            const language = document.getElementById('languageSelector').value;
-            
-            // Validación básica de sintaxis
-            if (language === 'javascript') {
-                try {
-                    // Intentar parsear el código JavaScript
-                    new Function(code);
-                } catch (e) {
-                    // Resaltar líneas con errores (implementación básica)
-                    highlightErrorLines(e.message);
-                }
-            }
-        }
+      function showNotification(message, type = "info") {
+        const container = document.getElementById("notificationContainer");
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
 
-        function highlightErrorLines(errorMessage) {
-            // Implementación básica para resaltar líneas con errores
-            // En una implementación real, se usaría un parser como Esprima o Acorn
-            console.log('Error de sintaxis detectado:', errorMessage);
-        }
+        const icons = {
+          success: "✅",
+          error: "❌",
+          warning: "⚠️",
+          info: "ℹ️",
+        };
 
-        function showNotification(message, type = 'info') {
-            const container = document.getElementById('notificationContainer');
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            
-            const icons = {
-                success: '✅',
-                error: '❌',
-                warning: '⚠️',
-                info: 'ℹ️'
-            };
-            
-            notification.innerHTML = `
+        notification.innerHTML = `
                 <span class="notification-icon">${icons[type]}</span>
                 <span>${message}</span>
             `;
-            
-            container.appendChild(notification);
-            
-            // Eliminar automáticamente después de 5 segundos
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 5000);
-        }
+
+        container.appendChild(notification);
+
+        // Eliminar automáticamente después de 5 segundos
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 5000);
+      }
     </script>
-</body>
+  </body>
 </html>
